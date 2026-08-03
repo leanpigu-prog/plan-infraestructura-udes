@@ -143,7 +143,7 @@ function doGet(e) {
 
 /**
  * Punto de entrada POST. El body debe ser JSON: { action: '...', ...payload }
- * Acciones soportadas: login, listarProyectos, actualizarProyecto, crearProyecto
+ * Acciones soportadas: login, listarProyectos, actualizarProyecto, crearProyecto, eliminarProyecto
  */
 function doPost(e) {
   try {
@@ -154,6 +154,7 @@ function doPost(e) {
     if (action === 'listarProyectos') return jsonResponse_(listarProyectos_(body.usuario, body.clave));
     if (action === 'actualizarProyecto') return jsonResponse_(actualizarProyecto_(body));
     if (action === 'crearProyecto') return jsonResponse_(crearProyecto_(body));
+    if (action === 'eliminarProyecto') return jsonResponse_(eliminarProyecto_(body));
 
     return jsonResponse_({ ok: false, error: 'Acción no reconocida: ' + action });
   } catch (err) {
@@ -308,6 +309,10 @@ function crearProyecto_(body) {
     campus = sesion.campus;
   }
 
+  if (body.prioridad && PRIORIDADES_VALIDAS.indexOf(body.prioridad) === -1) {
+    return { ok: false, error: 'Prioridad inválida: ' + body.prioridad };
+  }
+
   const ss = getSs_();
   const sheet = ss.getSheetByName(SHEET_PROYECTOS);
   const data = sheet.getDataRange().getValues();
@@ -324,9 +329,9 @@ function crearProyecto_(body) {
 
   sheet.appendRow([
     nuevoNumero, nombreProyecto, campus, String(body.descripcion || ''), body.programa,
-    '', '',
-    '', '', '',
-    '', 'Sin iniciar', '', 0, now
+    body.costoEstimado || '', body.fuenteFinanciacion || '',
+    body.fechaInicio || '', body.fechaFin || '', '',
+    body.responsable || '', 'Sin iniciar', body.prioridad || '', 0, now
   ]);
 
   const historial = ss.getSheetByName(SHEET_HISTORIAL);
@@ -336,4 +341,45 @@ function crearProyecto_(body) {
   ]);
 
   return { ok: true, numero: nuevoNumero };
+}
+
+/**
+ * Elimina un proyecto (identificado por N°) y su fila del Sheet. Mismo control de permisos
+ * que actualizarProyecto_: un responsable solo puede eliminar proyectos de su propio campus;
+ * el admin puede eliminar cualquiera. Deja constancia en Historial_Seguimiento.
+ */
+function eliminarProyecto_(body) {
+  const sesion = autenticar_(body.usuario, body.clave);
+  if (!sesion) return { ok: false, error: 'Usuario o clave incorrectos.' };
+
+  const ss = getSs_();
+  const sheet = ss.getSheetByName(SHEET_PROYECTOS);
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const colIndex = {};
+  headers.forEach(function (h, idx) { colIndex[h] = idx; });
+
+  const numeroProyecto = Number(body.numero);
+  let filaEncontrada = -1;
+  for (let i = 1; i < data.length; i++) {
+    if (Number(data[i][colIndex['N°']]) === numeroProyecto) { filaEncontrada = i; break; }
+  }
+  if (filaEncontrada === -1) return { ok: false, error: 'Proyecto no encontrado: ' + body.numero };
+
+  const filaActual = data[filaEncontrada];
+  const campusProyecto = filaActual[colIndex['Campus']];
+  if (sesion.rol !== 'admin' && campusProyecto !== sesion.campus) {
+    return { ok: false, error: 'No tienes permiso para eliminar proyectos de otro campus.' };
+  }
+
+  const rowNumber = filaEncontrada + 1;
+  sheet.deleteRow(rowNumber);
+
+  const historial = ss.getSheetByName(SHEET_HISTORIAL);
+  historial.appendRow([
+    new Date(), numeroProyecto, filaActual[colIndex['Proyecto']], sesion.usuario,
+    filaActual[colIndex['Estado']], 'Eliminado', '', 'Proyecto eliminado.'
+  ]);
+
+  return { ok: true };
 }

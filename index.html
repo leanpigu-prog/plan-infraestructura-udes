@@ -107,6 +107,8 @@
     padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.78rem;
   }
   .btn-editar:hover { background: var(--udes-navy); color: white; }
+  .btn-eliminar { border-color: var(--rojo); color: var(--rojo); margin-left: 6px; }
+  .btn-eliminar:hover { background: var(--rojo); color: white; }
 
   /* Formulario de edición (fila expandida) */
   tr.fila-edicion td { background: #FAFBFA; padding: 14px 10px; }
@@ -261,7 +263,7 @@ UdesHeader.render('#udesHeaderMount', {
    CONFIGURACIÓN — pega aquí la URL del Web App de Apps Script
    una vez lo despliegues (ver instrucciones de despliegue).
    ============================================================ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxeYTdpEA8SyXU7-S3rZkxnYMA9ZWIpnv6hl5rEky-I2Rh6RuS5EovcF8St1fPxd282/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzgEcWu5m88SDxLiCF78qzgDdesR7-_vyo1IpTJ4jv9zrC9xAc1TkW7dwT9c4GNJDI/exec';
 
 let sesionActual = null;
 let proyectosActuales = [];
@@ -498,10 +500,32 @@ function filaProyecto(p, mostrarCampus) {
       <div class="barra-avance"><div class="barra-avance-fill" style="width:${avance}%"></div></div>
       <span style="font-size:0.72rem">${avance}%</span>
     </td>
-    <td><button class="btn-editar">Editar</button></td>
+    <td style="white-space:nowrap">
+      <button class="btn-editar">Editar</button>
+      <button class="btn-editar btn-eliminar">Eliminar</button>
+    </td>
   `;
-  tr.querySelector('.btn-editar').addEventListener('click', () => abrirEdicion(tr, p));
+  tr.querySelector('.btn-editar:not(.btn-eliminar)').addEventListener('click', () => abrirEdicion(tr, p));
+  tr.querySelector('.btn-eliminar').addEventListener('click', () => eliminarProyecto(p));
   return tr;
+}
+
+async function eliminarProyecto(p) {
+  const confirmado = confirm(`¿Eliminar el proyecto "${p.Proyecto}" (N° ${p['N°']})? Esta acción no se puede deshacer.`);
+  if (!confirmado) return;
+
+  try {
+    const data = await llamarApi({
+      action: 'eliminarProyecto',
+      usuario: sesionActual.usuario,
+      clave: sesionActual.clave,
+      numero: p['N°'],
+    });
+    if (!data.ok) { alert(data.error); return; }
+    await cargarPostLogin();
+  } catch (err) {
+    alert('Error de conexión: ' + err);
+  }
 }
 
 function abrirEdicion(filaProyectoTr, p) {
@@ -604,6 +628,12 @@ function toggleFormularioNuevo(contenedorId, mostrarCampus) {
       <div><label>Proyecto</label><input type="text" id="nvProyecto_${contenedorId}" placeholder="Nombre del proyecto"></div>
       ${mostrarCampus ? `<div><label>Campus</label><select id="nvCampus_${contenedorId}">${CAMPUSES.map(c => `<option>${c}</option>`).join('')}</select></div>` : ''}
       <div><label>Programa</label><select id="nvPrograma_${contenedorId}">${PROGRAMAS.map(p => `<option>${p}</option>`).join('')}</select></div>
+      <div><label>Prioridad</label><select id="nvPrioridad_${contenedorId}"><option value="">–</option>${PRIORIDADES.map(pr => `<option>${pr}</option>`).join('')}</select></div>
+      <div><label>Responsable</label><input type="text" id="nvResponsable_${contenedorId}" placeholder="Nombre del responsable"></div>
+      <div><label>Costo estimado</label><input type="number" id="nvCosto_${contenedorId}"></div>
+      <div><label>Fuente de financiación</label><input type="text" id="nvFuente_${contenedorId}"></div>
+      <div><label>Fecha inicio</label><input type="date" id="nvInicio_${contenedorId}"></div>
+      <div><label>Fecha fin</label><input type="date" id="nvFin_${contenedorId}"></div>
       <div style="grid-column:1/-1"><label>Descripción</label><textarea id="nvDescripcion_${contenedorId}" rows="2" placeholder="Breve descripción del proyecto"></textarea></div>
       <div class="acciones">
         <button class="btn-cancelar" id="nvCancelar_${contenedorId}">Cancelar</button>
@@ -628,6 +658,12 @@ async function guardarNuevoProyecto(contenedorId, mostrarCampus) {
     proyecto: proyecto,
     programa: document.getElementById(`nvPrograma_${contenedorId}`).value,
     descripcion: document.getElementById(`nvDescripcion_${contenedorId}`).value,
+    prioridad: document.getElementById(`nvPrioridad_${contenedorId}`).value,
+    responsable: document.getElementById(`nvResponsable_${contenedorId}`).value,
+    costoEstimado: document.getElementById(`nvCosto_${contenedorId}`).value,
+    fuenteFinanciacion: document.getElementById(`nvFuente_${contenedorId}`).value,
+    fechaInicio: document.getElementById(`nvInicio_${contenedorId}`).value,
+    fechaFin: document.getElementById(`nvFin_${contenedorId}`).value,
   };
   if (mostrarCampus) payload.campus = document.getElementById(`nvCampus_${contenedorId}`).value;
 
