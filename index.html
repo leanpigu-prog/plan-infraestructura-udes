@@ -131,6 +131,27 @@
 
   .fila-atrasado { background: #FDEEEC; }
   footer { text-align: center; font-size: 0.75rem; color: var(--texto-suave); padding: 20px; }
+
+  .badge-origen { display: inline-block; margin-top: 3px; padding: 1px 8px; border-radius: 999px; font-size: 0.65rem; font-weight: 600; background: var(--gris-borde); color: var(--texto-suave); }
+  .badge-origen.nuevo { background: var(--udes-oro); color: var(--udes-navy-osc); }
+
+  .acciones-tabla { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .btn-nuevo { background: var(--udes-navy); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+  .btn-nuevo:hover { background: var(--udes-navy-osc); }
+  .caja-nuevo-proyecto { background: #FAFBFA; border: 1px solid var(--gris-borde); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+
+  .btn-imprimir { background: none; border: 1px solid var(--udes-navy-osc); color: var(--udes-navy-osc); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+
+  .solo-impresion { display: none; }
+  @media print {
+    .solo-impresion { display: block; margin-bottom: 20px; }
+    .solo-impresion h1 { margin: 0 0 4px; font-size: 1.3rem; color: var(--udes-navy-osc); }
+    .solo-impresion p { margin: 0; font-size: 0.85rem; color: var(--texto-suave); }
+    .barra-sesion, .btn-editar, .btn-nuevo, .btn-imprimir, .filtros, .form-edicion,
+    .caja-nuevo-proyecto, footer, .login-box { display: none !important; }
+    body { background: white; }
+    section.panel { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  }
 </style>
 </head>
 <body>
@@ -140,8 +161,14 @@
 <div class="barra-sesion">
   <div id="sesionInfo" class="oculto">
     <span id="sesionTexto"></span>
+    <button class="btn-imprimir" id="btnImprimir">Imprimir informe</button>
     <button id="btnSalir">Cerrar sesión</button>
   </div>
+</div>
+
+<div class="solo-impresion">
+  <h1>Plan de Infraestructura Física UDES — Informe</h1>
+  <p id="infoImpresion"></p>
 </div>
 
 <main>
@@ -167,7 +194,11 @@
   <div id="vistaCampus" class="oculto">
     <div class="resumen-grid" id="resumenCampus"></div>
     <section class="panel">
-      <h3>Proyectos de mi campus</h3>
+      <div class="acciones-tabla">
+        <h3 style="margin:0">Proyectos de mi campus</h3>
+        <button class="btn-nuevo" id="btnNuevoCampus">+ Nuevo proyecto</button>
+      </div>
+      <div id="cajaNuevoCampus" class="caja-nuevo-proyecto oculto"></div>
       <table class="tabla-proyectos" id="tablaCampus">
         <thead>
           <tr>
@@ -194,7 +225,11 @@
     </section>
 
     <section class="panel">
-      <h3>Todos los proyectos</h3>
+      <div class="acciones-tabla">
+        <h3 style="margin:0">Todos los proyectos</h3>
+        <button class="btn-nuevo" id="btnNuevoAdmin">+ Nuevo proyecto</button>
+      </div>
+      <div id="cajaNuevoAdmin" class="caja-nuevo-proyecto oculto"></div>
       <div class="filtros">
         <select id="filtroCampus"><option value="">Todos los campus</option></select>
         <select id="filtroPrograma"><option value="">Todos los programas</option></select>
@@ -233,6 +268,17 @@ let proyectosActuales = [];
 
 const ESTADOS = ['Sin iniciar', 'En desarrollo', 'Ejecutado', 'Atrasado'];
 const PRIORIDADES = ['Alta', 'Media', 'Baja'];
+const PROGRAMAS = [
+  'Movilidad y accesibilidad',
+  'Expansión académica',
+  'Equipamiento cultural y deportivo',
+  'Bienestar y vida universitaria',
+  'Identidad e imagen institucional',
+  'Ciencia, tecnología e innovación',
+  'Reserva de suelo',
+];
+const CAMPUSES = ['Bucaramanga', 'Cúcuta', 'Valledupar'];
+const NUMERO_MAXIMO_PLAN_MAESTRO = 19;
 
 function claseBadgeEstado(estado) {
   const map = { 'Sin iniciar': 'sin-iniciar', 'En desarrollo': 'en-desarrollo', 'Ejecutado': 'ejecutado', 'Atrasado': 'atrasado' };
@@ -301,7 +347,7 @@ async function cargarPostLogin() {
   document.getElementById('vistaLogin').classList.add('oculto');
   document.getElementById('sesionInfo').classList.remove('oculto');
   document.getElementById('sesionTexto').textContent =
-    sesionActual.usuario + ' · ' + (sesionActual.rol === 'admin' ? 'Consolidado' : sesionActual.campus);
+    sesionActual.rol === 'admin' ? 'Administración · Vista consolidada' : sesionActual.campus + ' · Responsable de campus';
 
   if (sesionActual.rol === 'admin') {
     document.getElementById('vistaAdmin').classList.remove('oculto');
@@ -438,9 +484,12 @@ function formatoFecha(valor) {
 function filaProyecto(p, mostrarCampus) {
   const tr = document.createElement('tr');
   const avance = Number(p['% avance']) || 0;
+  const esPlanMaestro = Number(p['N°']) <= NUMERO_MAXIMO_PLAN_MAESTRO;
   tr.innerHTML = `
     <td>${p['N°']}</td>
-    <td>${p.Proyecto}<div style="font-size:0.72rem;color:var(--texto-suave)">${p.Descripción || ''}</div></td>
+    <td>${p.Proyecto}<div style="font-size:0.72rem;color:var(--texto-suave)">${p.Descripción || ''}</div>
+      <span class="badge-origen ${esPlanMaestro ? '' : 'nuevo'}">${esPlanMaestro ? 'Plan Maestro' : 'Nuevo'}</span>
+    </td>
     ${mostrarCampus ? `<td>${p.Campus}</td>` : ''}
     <td>${p.Programa}</td>
     <td><span class="badge ${claseBadgeEstado(p.Estado)}">${p.Estado || 'Sin iniciar'}</span></td>
@@ -527,6 +576,68 @@ async function guardarEdicion(p, td, trEdicion) {
     if (!data.ok) { msg.textContent = data.error; msg.className = 'mensaje-error'; return; }
     msg.textContent = 'Guardado.';
     msg.className = 'mensaje-guardado';
+    await cargarPostLogin();
+  } catch (err) {
+    msg.textContent = 'Error de conexión: ' + err;
+    msg.className = 'mensaje-error';
+  }
+}
+
+/* -------- Imprimir informe -------- */
+document.getElementById('btnImprimir').addEventListener('click', function () {
+  const cuando = new Date().toLocaleString('es-CO');
+  const quien = sesionActual.rol === 'admin' ? 'Administración (vista consolidada)' : sesionActual.campus;
+  document.getElementById('infoImpresion').textContent = `Generado por ${quien} el ${cuando}`;
+  window.print();
+});
+
+/* -------- Registrar nuevo proyecto -------- */
+document.getElementById('btnNuevoCampus').addEventListener('click', () => toggleFormularioNuevo('cajaNuevoCampus', false));
+document.getElementById('btnNuevoAdmin').addEventListener('click', () => toggleFormularioNuevo('cajaNuevoAdmin', true));
+
+function toggleFormularioNuevo(contenedorId, mostrarCampus) {
+  const caja = document.getElementById(contenedorId);
+  if (!caja.classList.contains('oculto')) { caja.classList.add('oculto'); caja.innerHTML = ''; return; }
+  caja.classList.remove('oculto');
+  caja.innerHTML = `
+    <div class="form-edicion">
+      <div><label>Proyecto</label><input type="text" id="nvProyecto_${contenedorId}" placeholder="Nombre del proyecto"></div>
+      ${mostrarCampus ? `<div><label>Campus</label><select id="nvCampus_${contenedorId}">${CAMPUSES.map(c => `<option>${c}</option>`).join('')}</select></div>` : ''}
+      <div><label>Programa</label><select id="nvPrograma_${contenedorId}">${PROGRAMAS.map(p => `<option>${p}</option>`).join('')}</select></div>
+      <div style="grid-column:1/-1"><label>Descripción</label><textarea id="nvDescripcion_${contenedorId}" rows="2" placeholder="Breve descripción del proyecto"></textarea></div>
+      <div class="acciones">
+        <button class="btn-cancelar" id="nvCancelar_${contenedorId}">Cancelar</button>
+        <button class="btn-guardar" id="nvGuardar_${contenedorId}">Crear proyecto</button>
+      </div>
+      <div id="nvMensaje_${contenedorId}"></div>
+    </div>
+  `;
+  document.getElementById(`nvCancelar_${contenedorId}`).addEventListener('click', () => { caja.classList.add('oculto'); caja.innerHTML = ''; });
+  document.getElementById(`nvGuardar_${contenedorId}`).addEventListener('click', () => guardarNuevoProyecto(contenedorId, mostrarCampus));
+}
+
+async function guardarNuevoProyecto(contenedorId, mostrarCampus) {
+  const msg = document.getElementById(`nvMensaje_${contenedorId}`);
+  const proyecto = document.getElementById(`nvProyecto_${contenedorId}`).value.trim();
+  if (!proyecto) { msg.textContent = 'El nombre del proyecto es obligatorio.'; msg.className = 'mensaje-error'; return; }
+
+  const payload = {
+    action: 'crearProyecto',
+    usuario: sesionActual.usuario,
+    clave: sesionActual.clave,
+    proyecto: proyecto,
+    programa: document.getElementById(`nvPrograma_${contenedorId}`).value,
+    descripcion: document.getElementById(`nvDescripcion_${contenedorId}`).value,
+  };
+  if (mostrarCampus) payload.campus = document.getElementById(`nvCampus_${contenedorId}`).value;
+
+  msg.textContent = 'Creando...';
+  msg.className = '';
+  try {
+    const data = await llamarApi(payload);
+    if (!data.ok) { msg.textContent = data.error; msg.className = 'mensaje-error'; return; }
+    document.getElementById(contenedorId).classList.add('oculto');
+    document.getElementById(contenedorId).innerHTML = '';
     await cargarPostLogin();
   } catch (err) {
     msg.textContent = 'Error de conexión: ' + err;

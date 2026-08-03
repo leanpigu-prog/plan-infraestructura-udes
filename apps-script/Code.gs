@@ -20,6 +20,18 @@ function getSs_() {
 const ESTADOS_VALIDOS = ['Sin iniciar', 'En desarrollo', 'Ejecutado', 'Atrasado'];
 const PRIORIDADES_VALIDAS = ['Alta', 'Media', 'Baja'];
 
+const PROGRAMAS_VALIDOS = [
+  'Movilidad y accesibilidad',
+  'Expansión académica',
+  'Equipamiento cultural y deportivo',
+  'Bienestar y vida universitaria',
+  'Identidad e imagen institucional',
+  'Ciencia, tecnología e innovación',
+  'Reserva de suelo',
+];
+
+const CAMPUS_VALIDOS = ['Bucaramanga', 'Cúcuta', 'Valledupar'];
+
 const PROYECTOS_BASE = [
   // N°, Proyecto, Campus, Descripción, Programa, Estado inicial, % avance inicial
   [1, 'Edificio Chitareros', 'Bucaramanga', 'Infraestructura académica con aulas activas y laboratorios flexibles, preparada para ampliaciones futuras.', 'Expansión académica', 'Sin iniciar', 0],
@@ -131,7 +143,7 @@ function doGet(e) {
 
 /**
  * Punto de entrada POST. El body debe ser JSON: { action: '...', ...payload }
- * Acciones soportadas: login, listarProyectos, actualizarProyecto
+ * Acciones soportadas: login, listarProyectos, actualizarProyecto, crearProyecto
  */
 function doPost(e) {
   try {
@@ -141,6 +153,7 @@ function doPost(e) {
     if (action === 'login') return jsonResponse_(login_(body.usuario, body.clave));
     if (action === 'listarProyectos') return jsonResponse_(listarProyectos_(body.usuario, body.clave));
     if (action === 'actualizarProyecto') return jsonResponse_(actualizarProyecto_(body));
+    if (action === 'crearProyecto') return jsonResponse_(crearProyecto_(body));
 
     return jsonResponse_({ ok: false, error: 'Acción no reconocida: ' + action });
   } catch (err) {
@@ -267,4 +280,60 @@ function actualizarProyecto_(body) {
   ]);
 
   return { ok: true };
+}
+
+/**
+ * Crea un proyecto nuevo (fuera de los 19 del Plan Maestro original), dentro de una
+ * de las categorías funcionales ya definidas. Un responsable solo puede crear proyectos
+ * en su propio campus; el admin puede elegir cualquiera de los 3 campus.
+ */
+function crearProyecto_(body) {
+  const sesion = autenticar_(body.usuario, body.clave);
+  if (!sesion) return { ok: false, error: 'Usuario o clave incorrectos.' };
+
+  const nombreProyecto = String(body.proyecto || '').trim();
+  if (!nombreProyecto) return { ok: false, error: 'El nombre del proyecto es obligatorio.' };
+
+  if (PROGRAMAS_VALIDOS.indexOf(body.programa) === -1) {
+    return { ok: false, error: 'Programa inválido: ' + body.programa };
+  }
+
+  let campus;
+  if (sesion.rol === 'admin') {
+    if (CAMPUS_VALIDOS.indexOf(body.campus) === -1) {
+      return { ok: false, error: 'Campus inválido: ' + body.campus };
+    }
+    campus = body.campus;
+  } else {
+    campus = sesion.campus;
+  }
+
+  const ss = getSs_();
+  const sheet = ss.getSheetByName(SHEET_PROYECTOS);
+  const data = sheet.getDataRange().getValues();
+  const colIndex = {};
+  data[0].forEach(function (h, idx) { colIndex[h] = idx; });
+
+  let maxNumero = 0;
+  for (let i = 1; i < data.length; i++) {
+    const n = Number(data[i][colIndex['N°']]);
+    if (n > maxNumero) maxNumero = n;
+  }
+  const nuevoNumero = maxNumero + 1;
+  const now = new Date();
+
+  sheet.appendRow([
+    nuevoNumero, nombreProyecto, campus, String(body.descripcion || ''), body.programa,
+    '', '',
+    '', '', '',
+    '', 'Sin iniciar', '', 0, now
+  ]);
+
+  const historial = ss.getSheetByName(SHEET_HISTORIAL);
+  historial.appendRow([
+    now, nuevoNumero, nombreProyecto, sesion.usuario,
+    '—', 'Sin iniciar', 0, 'Proyecto creado (fuera del Plan Maestro original).'
+  ]);
+
+  return { ok: true, numero: nuevoNumero };
 }
