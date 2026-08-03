@@ -146,13 +146,30 @@
 
   .solo-impresion { display: none; }
   @media print {
-    .solo-impresion { display: block; margin-bottom: 20px; }
-    .solo-impresion h1 { margin: 0 0 4px; font-size: 1.3rem; color: var(--udes-navy-osc); }
-    .solo-impresion p { margin: 0; font-size: 0.85rem; color: var(--texto-suave); }
-    .barra-sesion, .btn-editar, .btn-nuevo, .btn-imprimir, .filtros, .form-edicion,
+    @page { margin: 1.8cm 1.5cm; }
+
+    .solo-impresion {
+      display: block; margin-bottom: 22px; padding-bottom: 14px;
+      border-bottom: 3px solid var(--udes-oro);
+    }
+    .ei-fila { display: flex; align-items: center; gap: 16px; }
+    #logoImpresion { height: 52px; width: auto; flex-shrink: 0; }
+    .ei-texto strong {
+      display: block; font-size: 0.78rem; color: var(--texto-suave);
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .solo-impresion h1 { margin: 2px 0 0; font-size: 1.35rem; color: var(--udes-navy-osc); }
+    .solo-impresion p#infoImpresion { margin: 12px 0 0; font-size: 0.78rem; color: var(--texto-suave); }
+
+    #udesHeaderMount, .barra-sesion, .btn-editar, .btn-nuevo, .btn-imprimir, .filtros, .form-edicion,
     .caja-nuevo-proyecto, footer, .login-box { display: none !important; }
-    body { background: white; }
-    section.panel { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+
+    body { background: white; margin: 0; }
+    main { max-width: none; padding: 0; margin: 0; }
+    section.panel { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; padding: 14px; }
+
+    table.tabla-proyectos thead { display: table-header-group; }
+    table.tabla-proyectos tr { break-inside: avoid; }
   }
 </style>
 </head>
@@ -169,7 +186,13 @@
 </div>
 
 <div class="solo-impresion">
-  <h1>Plan de Infraestructura Física UDES — Informe</h1>
+  <div class="ei-fila">
+    <img id="logoImpresion" alt="UDES">
+    <div class="ei-texto">
+      <strong>Universidad de Santander</strong>
+      <h1>Plan de Infraestructura Física — Informe</h1>
+    </div>
+  </div>
   <p id="infoImpresion"></p>
 </div>
 
@@ -612,6 +635,10 @@ document.getElementById('btnImprimir').addEventListener('click', function () {
   const cuando = new Date().toLocaleString('es-CO');
   const quien = sesionActual.rol === 'admin' ? 'Administración (vista consolidada)' : sesionActual.campus;
   document.getElementById('infoImpresion').textContent = `Generado por ${quien} el ${cuando}`;
+
+  const logoOrigen = document.querySelector('#udesHeaderMount .udes-header-logo');
+  if (logoOrigen) document.getElementById('logoImpresion').src = logoOrigen.src;
+
   window.print();
 });
 
