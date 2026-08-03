@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan de Infraestructura Física UDES</title>
+<style>
+  :root {
+    --udes-verde: #0B5D3B;
+    --udes-verde-osc: #073D27;
+    --udes-oro: #C9A227;
+    --gris-bg: #F4F6F5;
+    --gris-borde: #DCE3E0;
+    --texto: #1E2A26;
+    --texto-suave: #5B6B65;
+    --blanco: #FFFFFF;
+    --rojo: #C0392B;
+    --azul: #2E6DA4;
+    --verde-ok: #2E7D46;
+    --gris-neutro: #8B8B8B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--gris-bg);
+    color: var(--texto);
+  }
+  header.app-header {
+    background: linear-gradient(135deg, var(--udes-verde), var(--udes-verde-osc));
+    color: var(--blanco);
+    padding: 18px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header.app-header h1 {
+    font-size: 1.25rem;
+    margin: 0;
+    font-weight: 600;
+  }
+  header.app-header .sub {
+    font-size: 0.8rem;
+    opacity: 0.85;
+  }
+  #sesionInfo { font-size: 0.85rem; display: flex; align-items: center; gap: 12px; }
+  #sesionInfo button {
+    background: var(--udes-oro);
+    color: var(--udes-verde-osc);
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .oculto { display: none !important; }
+
+  /* Login */
+  .login-box {
+    max-width: 380px;
+    margin: 60px auto;
+    background: var(--blanco);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .login-box h2 { margin-top: 0; color: var(--udes-verde-osc); }
+  .login-box label { display: block; font-size: 0.85rem; margin-top: 14px; margin-bottom: 4px; color: var(--texto-suave); }
+  .login-box input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--gris-borde); border-radius: 6px; font-size: 0.95rem;
+  }
+  .login-box button {
+    width: 100%; margin-top: 20px; padding: 11px; background: var(--udes-verde); color: white;
+    border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: 600;
+  }
+  .login-box button:hover { background: var(--udes-verde-osc); }
+  #loginError { color: var(--rojo); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+
+  /* Tarjetas resumen */
+  .resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .tarjeta {
+    background: var(--blanco); border-radius: 10px; padding: 16px; border: 1px solid var(--gris-borde);
+  }
+  .tarjeta .valor { font-size: 1.6rem; font-weight: 700; color: var(--udes-verde-osc); }
+  .tarjeta .etiqueta { font-size: 0.78rem; color: var(--texto-suave); }
+
+  section.panel {
+    background: var(--blanco); border-radius: 10px; padding: 20px; margin-bottom: 22px; border: 1px solid var(--gris-borde);
+  }
+  section.panel h3 { margin-top: 0; color: var(--udes-verde-osc); font-size: 1.05rem; }
+
+  table.tabla-proyectos { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  table.tabla-proyectos th, table.tabla-proyectos td {
+    text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gris-borde); vertical-align: top;
+  }
+  table.tabla-proyectos th { color: var(--texto-suave); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; color: white; }
+  .badge.sin-iniciar { background: var(--gris-neutro); }
+  .badge.en-desarrollo { background: var(--azul); }
+  .badge.ejecutado { background: var(--verde-ok); }
+  .badge.atrasado { background: var(--rojo); }
+
+  .badge.prioridad-alta { background: var(--rojo); }
+  .badge.prioridad-media { background: var(--udes-oro); color: var(--udes-verde-osc); }
+  .badge.prioridad-baja { background: var(--gris-neutro); }
+
+  .barra-avance { background: var(--gris-borde); border-radius: 6px; height: 8px; width: 100px; overflow: hidden; }
+  .barra-avance-fill { background: var(--udes-verde); height: 100%; }
+
+  .btn-editar {
+    background: none; border: 1px solid var(--udes-verde); color: var(--udes-verde);
+    padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.78rem;
+  }
+  .btn-editar:hover { background: var(--udes-verde); color: white; }
+
+  /* Formulario de edición (fila expandida) */
+  tr.fila-edicion td { background: #FAFBFA; padding: 14px 10px; }
+  .form-edicion { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .form-edicion label { display: block; font-size: 0.72rem; color: var(--texto-suave); margin-bottom: 3px; }
+  .form-edicion input, .form-edicion select, .form-edicion textarea {
+    width: 100%; padding: 6px 8px; border: 1px solid var(--gris-borde); border-radius: 5px; font-size: 0.83rem; font-family: inherit;
+  }
+  .form-edicion .acciones { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+  .form-edicion .acciones button {
+    padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem;
+  }
+  .btn-guardar { background: var(--udes-verde); color: white; }
+  .btn-cancelar { background: var(--gris-borde); color: var(--texto); }
+  .mensaje-guardado { font-size: 0.8rem; color: var(--verde-ok); margin-top: 6px; }
+  .mensaje-error { font-size: 0.8rem; color: var(--rojo); margin-top: 6px; }
+
+  select#filtroCampus, select#filtroPrograma, select#filtroEstado {
+    padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gris-borde); font-size: 0.85rem;
+  }
+  .filtros { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+  .fila-atrasado { background: #FDEEEC; }
+  footer { text-align: center; font-size: 0.75rem; color: var(--texto-suave); padding: 20px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div>
+    <h1>Plan de Infraestructura Física UDES</h1>
+    <div class="sub">Planeación y seguimiento de proyectos transversales por campus</div>
+  </div>
+  <div id="sesionInfo" class="oculto">
+    <span id="sesionTexto"></span>
+    <button id="btnSalir">Cerrar sesión</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- LOGIN -->
+  <div id="vistaLogin" class="login-box">
+    <h2>Ingresar</h2>
+    <label for="inputUsuario">Usuario</label>
+    <input id="inputUsuario" type="text" placeholder="bucaramanga / cucuta / valledupar / admin">
+    <label for="inputClave">Clave</label>
+    <input id="inputClave" type="password">
+    <button id="btnIngresar">Ingresar</button>
+    <div id="loginError"></div>
+  </div>
+
+  <!-- VISTA RESPONSABLE DE CAMPUS -->
+  <div id="vistaCampus" class="oculto">
+    <div class="resumen-grid" id="resumenCampus"></div>
+    <section class="panel">
+      <h3>Proyectos de mi campus</h3>
+      <table class="tabla-proyectos" id="tablaCampus">
+        <thead>
+          <tr>
+            <th>N°</th><th>Proyecto</th><th>Programa</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tbodyCampus"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- VISTA ADMIN / CONSOLIDADO -->
+  <div id="vistaAdmin" class="oculto">
+    <div class="resumen-grid" id="resumenAdmin"></div>
+
+    <section class="panel">
+      <h3>Proyectos por programa y campus</h3>
+      <div id="matrizProgramaCampus"></div>
+    </section>
+
+    <section class="panel">
+      <h3 id="tituloAlertas">Alertas de atraso</h3>
+      <div id="alertasAtraso"></div>
+    </section>
+
+    <section class="panel">
+      <h3>Todos los proyectos</h3>
+      <div class="filtros">
+        <select id="filtroCampus"><option value="">Todos los campus</option></select>
+        <select id="filtroPrograma"><option value="">Todos los programas</option></select>
+        <select id="filtroEstado"><option value="">Todos los estados</option></select>
+      </div>
+      <table class="tabla-proyectos" id="tablaAdmin">
+        <thead>
+          <tr>
+            <th>N°</th><th>Proyecto</th><th>Campus</th><th>Programa</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tbodyAdmin"></tbody>
+      </table>
+    </section>
+  </div>
+
+</main>
+
+<footer>Universidad de Santander — Planta Física · Herramienta interna de planeación y seguimiento</footer>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — pega aquí la URL del Web App de Apps Script
+   una vez lo despliegues (ver instrucciones de despliegue).
+   ============================================================ */
+const API_URL = 'PON_AQUI_LA_URL_DEL_WEB_APP';
+
+let sesionActual = null;
+let proyectosActuales = [];
+
+const ESTADOS = ['Sin iniciar', 'En desarrollo', 'Ejecutado', 'Atrasado'];
+const PRIORIDADES = ['Alta', 'Media', 'Baja'];
+
+function claseBadgeEstado(estado) {
+  const map = { 'Sin iniciar': 'sin-iniciar', 'En desarrollo': 'en-desarrollo', 'Ejecutado': 'ejecutado', 'Atrasado': 'atrasado' };
+  return map[estado] || 'sin-iniciar';
+}
+function claseBadgePrioridad(p) {
+  const map = { 'Alta': 'prioridad-alta', 'Media': 'prioridad-media', 'Baja': 'prioridad-baja' };
+  return map[p] || 'prioridad-baja';
+}
+
+async function llamarApi(payload) {
+  const resp = await fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  return resp.json();
+}
+
+function guardarSesion(sesion) {
+  sesionActual = sesion;
+  sessionStorage.setItem('sesionInfraestructura', JSON.stringify(sesion));
+}
+function recuperarSesion() {
+  const raw = sessionStorage.getItem('sesionInfraestructura');
+  return raw ? JSON.parse(raw) : null;
+}
+function borrarSesion() {
+  sesionActual = null;
+  sessionStorage.removeItem('sesionInfraestructura');
+}
+
+document.getElementById('btnIngresar').addEventListener('click', hacerLogin);
+document.getElementById('inputClave').addEventListener('keydown', function (e) { if (e.key === 'Enter') hacerLogin(); });
+document.getElementById('btnSalir').addEventListener('click', function () {
+  borrarSesion();
+  location.reload();
+});
+
+async function hacerLogin() {
+  const usuario = document.getElementById('inputUsuario').value.trim();
+  const clave = document.getElementById('inputClave').value;
+  const errorEl = document.getElementById('loginError');
+  errorEl.textContent = '';
+
+  if (!usuario || !clave) { errorEl.textContent = 'Completa usuario y clave.'; return; }
+  if (API_URL === 'PON_AQUI_LA_URL_DEL_WEB_APP') {
+    errorEl.textContent = 'Falta configurar la URL del backend (API_URL) en index.html.';
+    return;
+  }
+
+  try {
+    const data = await llamarApi({ action: 'login', usuario: usuario, clave: clave });
+    if (!data.ok) { errorEl.textContent = data.error || 'No se pudo iniciar sesión.'; return; }
+    guardarSesion(Object.assign({ clave: clave }, data.sesion));
+    await cargarPostLogin();
+  } catch (err) {
+    errorEl.textContent = 'Error de conexión con el backend: ' + err;
+  }
+}
+
+async function cargarPostLogin() {
+  const data = await llamarApi({ action: 'listarProyectos', usuario: sesionActual.usuario, clave: sesionActual.clave });
+  if (!data.ok) { alert(data.error); return; }
+  proyectosActuales = data.proyectos;
+
+  document.getElementById('vistaLogin').classList.add('oculto');
+  document.getElementById('sesionInfo').classList.remove('oculto');
+  document.getElementById('sesionTexto').textContent =
+    sesionActual.usuario + ' · ' + (sesionActual.rol === 'admin' ? 'Consolidado' : sesionActual.campus);
+
+  if (sesionActual.rol === 'admin') {
+    document.getElementById('vistaAdmin').classList.remove('oculto');
+    renderAdmin();
+  } else {
+    document.getElementById('vistaCampus').classList.remove('oculto');
+    renderCampus();
+  }
+}
+
+function estaAtrasado(p) {
+  if (!p['Fecha fin'] || p['Estado'] === 'Ejecutado') return false;
+  const fin = new Date(p['Fecha fin']);
+  if (isNaN(fin.getTime())) return false;
+  return fin < new Date();
+}
+
+/* -------- Vista responsable de campus -------- */
+function renderCampus() {
+  const total = proyectosActuales.length;
+  const ejecutados = proyectosActuales.filter(p => p.Estado === 'Ejecutado').length;
+  const avancePromedio = total ? Math.round(proyectosActuales.reduce((a, p) => a + (Number(p['% avance']) || 0), 0) / total) : 0;
+  const atrasados = proyectosActuales.filter(estaAtrasado).length;
+
+  document.getElementById('resumenCampus').innerHTML = `
+    <div class="tarjeta"><div class="valor">${total}</div><div class="etiqueta">Proyectos asignados</div></div>
+    <div class="tarjeta"><div class="valor">${ejecutados}</div><div class="etiqueta">Ejecutados</div></div>
+    <div class="tarjeta"><div class="valor">${avancePromedio}%</div><div class="etiqueta">Avance promedio</div></div>
+    <div class="tarjeta"><div class="valor">${atrasados}</div><div class="etiqueta">Atrasados</div></div>
+  `;
+
+  const tbody = document.getElementById('tbodyCampus');
+  tbody.innerHTML = '';
+  proyectosActuales.forEach(p => tbody.appendChild(filaProyecto(p, false)));
+}
+
+/* -------- Vista admin / consolidado -------- */
+function renderAdmin() {
+  const total = proyectosActuales.length;
+  const ejecutados = proyectosActuales.filter(p => p.Estado === 'Ejecutado').length;
+  const avancePromedio = total ? Math.round(proyectosActuales.reduce((a, p) => a + (Number(p['% avance']) || 0), 0) / total) : 0;
+  const atrasados = proyectosActuales.filter(estaAtrasado).length;
+  const costoTotal = proyectosActuales.reduce((a, p) => a + (Number(p['Costo estimado']) || 0), 0);
+
+  document.getElementById('resumenAdmin').innerHTML = `
+    <div class="tarjeta"><div class="valor">${total}</div><div class="etiqueta">Proyectos totales</div></div>
+    <div class="tarjeta"><div class="valor">${ejecutados}</div><div class="etiqueta">Ejecutados</div></div>
+    <div class="tarjeta"><div class="valor">${avancePromedio}%</div><div class="etiqueta">Avance promedio</div></div>
+    <div class="tarjeta"><div class="valor">${atrasados}</div><div class="etiqueta">Atrasados</div></div>
+    <div class="tarjeta"><div class="valor">$${costoTotal.toLocaleString('es-CO')}</div><div class="etiqueta">Costo estimado total</div></div>
+  `;
+
+  renderMatrizProgramaCampus();
+  renderAlertas();
+  poblarFiltros();
+  renderTablaAdmin();
+}
+
+function renderMatrizProgramaCampus() {
+  const campuses = [...new Set(proyectosActuales.map(p => p.Campus))];
+  const programas = [...new Set(proyectosActuales.map(p => p.Programa))];
+
+  let html = '<table class="tabla-proyectos"><thead><tr><th>Programa</th>';
+  campuses.forEach(c => html += `<th>${c}</th>`);
+  html += '<th>Total</th></tr></thead><tbody>';
+
+  programas.forEach(prog => {
+    html += `<tr><td>${prog}</td>`;
+    let totalPrograma = 0;
+    campuses.forEach(c => {
+      const n = proyectosActuales.filter(p => p.Programa === prog && p.Campus === c).length;
+      totalPrograma += n;
+      html += `<td>${n || '–'}</td>`;
+    });
+    html += `<td><strong>${totalPrograma}</strong></td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('matrizProgramaCampus').innerHTML = html;
+}
+
+function renderAlertas() {
+  const atrasados = proyectosActuales.filter(estaAtrasado);
+  document.getElementById('tituloAlertas').textContent = `Alertas de atraso (${atrasados.length})`;
+  const cont = document.getElementById('alertasAtraso');
+  if (!atrasados.length) { cont.innerHTML = '<p style="color:var(--texto-suave); font-size:0.85rem;">Sin proyectos atrasados.</p>'; return; }
+  let html = '<table class="tabla-proyectos"><thead><tr><th>N°</th><th>Proyecto</th><th>Campus</th><th>Fecha fin</th><th>Responsable</th></tr></thead><tbody>';
+  atrasados.forEach(p => {
+    html += `<tr class="fila-atrasado"><td>${p['N°']}</td><td>${p.Proyecto}</td><td>${p.Campus}</td><td>${formatoFecha(p['Fecha fin'])}</td><td>${p.Responsable || '–'}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  cont.innerHTML = html;
+}
+
+function poblarFiltros() {
+  const campuses = [...new Set(proyectosActuales.map(p => p.Campus))];
+  const programas = [...new Set(proyectosActuales.map(p => p.Programa))];
+  const selCampus = document.getElementById('filtroCampus');
+  const selPrograma = document.getElementById('filtroPrograma');
+  const selEstado = document.getElementById('filtroEstado');
+
+  if (selCampus.dataset.poblado) return;
+  campuses.forEach(c => selCampus.appendChild(new Option(c, c)));
+  programas.forEach(p => selPrograma.appendChild(new Option(p, p)));
+  ESTADOS.forEach(e => selEstado.appendChild(new Option(e, e)));
+
+  [selCampus, selPrograma, selEstado].forEach(s => s.addEventListener('change', renderTablaAdmin));
+  selCampus.dataset.poblado = '1';
+}
+
+function renderTablaAdmin() {
+  const fCampus = document.getElementById('filtroCampus').value;
+  const fPrograma = document.getElementById('filtroPrograma').value;
+  const fEstado = document.getElementById('filtroEstado').value;
+
+  const filtrados = proyectosActuales.filter(p =>
+    (!fCampus || p.Campus === fCampus) &&
+    (!fPrograma || p.Programa === fPrograma) &&
+    (!fEstado || p.Estado === fEstado)
+  );
+
+  const tbody = document.getElementById('tbodyAdmin');
+  tbody.innerHTML = '';
+  filtrados.forEach(p => tbody.appendChild(filaProyecto(p, true)));
+}
+
+function formatoFecha(valor) {
+  if (!valor) return '–';
+  const d = new Date(valor);
+  if (isNaN(d.getTime())) return valor;
+  return d.toLocaleDateString('es-CO');
+}
+
+/* -------- Fila de proyecto (compartida entre vista campus y admin) -------- */
+function filaProyecto(p, mostrarCampus) {
+  const tr = document.createElement('tr');
+  const avance = Number(p['% avance']) || 0;
+  tr.innerHTML = `
+    <td>${p['N°']}</td>
+    <td>${p.Proyecto}<div style="font-size:0.72rem;color:var(--texto-suave)">${p.Descripción || ''}</div></td>
+    ${mostrarCampus ? `<td>${p.Campus}</td>` : ''}
+    <td>${p.Programa}</td>
+    <td><span class="badge ${claseBadgeEstado(p.Estado)}">${p.Estado || 'Sin iniciar'}</span></td>
+    <td>${p.Prioridad ? `<span class="badge ${claseBadgePrioridad(p.Prioridad)}">${p.Prioridad}</span>` : '–'}</td>
+    <td>
+      <div class="barra-avance"><div class="barra-avance-fill" style="width:${avance}%"></div></div>
+      <span style="font-size:0.72rem">${avance}%</span>
+    </td>
+    <td><button class="btn-editar">Editar</button></td>
+  `;
+  tr.querySelector('.btn-editar').addEventListener('click', () => abrirEdicion(tr, p));
+  return tr;
+}
+
+function abrirEdicion(filaProyectoTr, p) {
+  const existente = filaProyectoTr.nextElementSibling;
+  if (existente && existente.classList.contains('fila-edicion')) { existente.remove(); return; }
+
+  const numCols = filaProyectoTr.children.length;
+  const tr = document.createElement('tr');
+  tr.className = 'fila-edicion';
+  const td = document.createElement('td');
+  td.colSpan = numCols;
+  td.innerHTML = `
+    <div class="form-edicion">
+      <div><label>Costo estimado</label><input type="number" id="edCosto" value="${p['Costo estimado'] || ''}"></div>
+      <div><label>Fuente de financiación</label><input type="text" id="edFuente" value="${p['Fuente de financiación'] || ''}"></div>
+      <div><label>Fecha inicio</label><input type="date" id="edInicio" value="${valorFecha(p['Fecha inicio'])}"></div>
+      <div><label>Fecha fin</label><input type="date" id="edFin" value="${valorFecha(p['Fecha fin'])}"></div>
+      <div><label>Fase actual</label><input type="text" id="edFase" value="${p['Fase actual'] || ''}"></div>
+      <div><label>Responsable</label><input type="text" id="edResponsable" value="${p.Responsable || ''}"></div>
+      <div><label>Estado</label>
+        <select id="edEstado">${ESTADOS.map(e => `<option ${e === p.Estado ? 'selected' : ''}>${e}</option>`).join('')}</select>
+      </div>
+      <div><label>Prioridad</label>
+        <select id="edPrioridad"><option value="">–</option>${PRIORIDADES.map(pr => `<option ${pr === p.Prioridad ? 'selected' : ''}>${pr}</option>`).join('')}</select>
+      </div>
+      <div><label>% avance</label><input type="number" min="0" max="100" id="edAvance" value="${p['% avance'] || 0}"></div>
+      <div style="grid-column:1/-1"><label>Comentario de seguimiento</label><textarea id="edComentario" rows="2" placeholder="Novedad de esta actualización..."></textarea></div>
+      <div class="acciones">
+        <button class="btn-cancelar" id="edCancelar">Cancelar</button>
+        <button class="btn-guardar" id="edGuardar">Guardar</button>
+      </div>
+      <div id="edMensaje" style="grid-column:1/-1"></div>
+    </div>
+  `;
+  td.querySelector('#edCancelar').addEventListener('click', () => tr.remove());
+  td.querySelector('#edGuardar').addEventListener('click', () => guardarEdicion(p, td, tr));
+  tr.appendChild(td);
+  filaProyectoTr.after(tr);
+}
+
+function valorFecha(v) {
+  if (!v) return '';
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return '';
+  return d.toISOString().slice(0, 10);
+}
+
+async function guardarEdicion(p, td, trEdicion) {
+  const msg = td.querySelector('#edMensaje');
+  msg.textContent = 'Guardando...';
+  msg.className = '';
+
+  const payload = {
+    action: 'actualizarProyecto',
+    usuario: sesionActual.usuario,
+    clave: sesionActual.clave,
+    numero: p['N°'],
+    costoEstimado: td.querySelector('#edCosto').value,
+    fuenteFinanciacion: td.querySelector('#edFuente').value,
+    fechaInicio: td.querySelector('#edInicio').value,
+    fechaFin: td.querySelector('#edFin').value,
+    faseActual: td.querySelector('#edFase').value,
+    responsable: td.querySelector('#edResponsable').value,
+    estado: td.querySelector('#edEstado').value,
+    prioridad: td.querySelector('#edPrioridad').value,
+    pctAvance: td.querySelector('#edAvance').value,
+    comentario: td.querySelector('#edComentario').value,
+  };
+
+  try {
+    const data = await llamarApi(payload);
+    if (!data.ok) { msg.textContent = data.error; msg.className = 'mensaje-error'; return; }
+    msg.textContent = 'Guardado.';
+    msg.className = 'mensaje-guardado';
+    await cargarPostLogin();
+  } catch (err) {
+    msg.textContent = 'Error de conexión: ' + err;
+    msg.className = 'mensaje-error';
+  }
+}
+
+/* -------- Arranque: retomar sesión si ya existía -------- */
+(async function iniciar() {
+  const sesionGuardada = recuperarSesion();
+  if (sesionGuardada) {
+    sesionActual = sesionGuardada;
+    try { await cargarPostLogin(); } catch (e) { borrarSesion(); }
+  }
+})();
+</script>
+
+</body>
+</html>
