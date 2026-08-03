@@ -6,8 +6,8 @@
 <title>Plan de Infraestructura Física UDES</title>
 <style>
   :root {
-    --udes-verde: #0B5D3B;
-    --udes-verde-osc: #073D27;
+    --udes-navy: #0C2340;
+    --udes-navy-osc: #081a30;
     --udes-oro: #C9A227;
     --gris-bg: #F4F6F5;
     --gris-borde: #DCE3E0;
@@ -26,29 +26,15 @@
     background: var(--gris-bg);
     color: var(--texto);
   }
-  header.app-header {
-    background: linear-gradient(135deg, var(--udes-verde), var(--udes-verde-osc));
-    color: var(--blanco);
-    padding: 18px 28px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  header.app-header h1 {
-    font-size: 1.25rem;
-    margin: 0;
-    font-weight: 600;
-  }
-  header.app-header .sub {
-    font-size: 0.8rem;
-    opacity: 0.85;
+  .marca-wrap { max-width: 1200px; margin: 18px auto 0; padding: 0 24px; }
+  .barra-sesion {
+    max-width: 1200px; margin: 10px auto 0; padding: 0 24px;
+    display: flex; justify-content: flex-end;
   }
   #sesionInfo { font-size: 0.85rem; display: flex; align-items: center; gap: 12px; }
   #sesionInfo button {
     background: var(--udes-oro);
-    color: var(--udes-verde-osc);
+    color: var(--udes-navy-osc);
     border: none;
     padding: 6px 14px;
     border-radius: 6px;
@@ -67,16 +53,16 @@
     padding: 32px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   }
-  .login-box h2 { margin-top: 0; color: var(--udes-verde-osc); }
+  .login-box h2 { margin-top: 0; color: var(--udes-navy-osc); }
   .login-box label { display: block; font-size: 0.85rem; margin-top: 14px; margin-bottom: 4px; color: var(--texto-suave); }
-  .login-box input {
-    width: 100%; padding: 10px 12px; border: 1px solid var(--gris-borde); border-radius: 6px; font-size: 0.95rem;
+  .login-box input, .login-box select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--gris-borde); border-radius: 6px; font-size: 0.95rem; font-family: inherit; background: white;
   }
   .login-box button {
-    width: 100%; margin-top: 20px; padding: 11px; background: var(--udes-verde); color: white;
+    width: 100%; margin-top: 20px; padding: 11px; background: var(--udes-navy); color: white;
     border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: 600;
   }
-  .login-box button:hover { background: var(--udes-verde-osc); }
+  .login-box button:hover { background: var(--udes-navy-osc); }
   #loginError { color: var(--rojo); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
 
   /* Tarjetas resumen */
@@ -89,13 +75,13 @@
   .tarjeta {
     background: var(--blanco); border-radius: 10px; padding: 16px; border: 1px solid var(--gris-borde);
   }
-  .tarjeta .valor { font-size: 1.6rem; font-weight: 700; color: var(--udes-verde-osc); }
+  .tarjeta .valor { font-size: 1.6rem; font-weight: 700; color: var(--udes-navy-osc); }
   .tarjeta .etiqueta { font-size: 0.78rem; color: var(--texto-suave); }
 
   section.panel {
     background: var(--blanco); border-radius: 10px; padding: 20px; margin-bottom: 22px; border: 1px solid var(--gris-borde);
   }
-  section.panel h3 { margin-top: 0; color: var(--udes-verde-osc); font-size: 1.05rem; }
+  section.panel h3 { margin-top: 0; color: var(--udes-navy-osc); font-size: 1.05rem; }
 
   table.tabla-proyectos { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   table.tabla-proyectos th, table.tabla-proyectos td {
@@ -110,17 +96,17 @@
   .badge.atrasado { background: var(--rojo); }
 
   .badge.prioridad-alta { background: var(--rojo); }
-  .badge.prioridad-media { background: var(--udes-oro); color: var(--udes-verde-osc); }
+  .badge.prioridad-media { background: var(--udes-oro); color: var(--udes-navy-osc); }
   .badge.prioridad-baja { background: var(--gris-neutro); }
 
   .barra-avance { background: var(--gris-borde); border-radius: 6px; height: 8px; width: 100px; overflow: hidden; }
-  .barra-avance-fill { background: var(--udes-verde); height: 100%; }
+  .barra-avance-fill { background: var(--udes-navy); height: 100%; }
 
   .btn-editar {
-    background: none; border: 1px solid var(--udes-verde); color: var(--udes-verde);
+    background: none; border: 1px solid var(--udes-navy); color: var(--udes-navy);
     padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.78rem;
   }
-  .btn-editar:hover { background: var(--udes-verde); color: white; }
+  .btn-editar:hover { background: var(--udes-navy); color: white; }
 
   /* Formulario de edición (fila expandida) */
   tr.fila-edicion td { background: #FAFBFA; padding: 14px 10px; }
@@ -133,7 +119,7 @@
   .form-edicion .acciones button {
     padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem;
   }
-  .btn-guardar { background: var(--udes-verde); color: white; }
+  .btn-guardar { background: var(--udes-navy); color: white; }
   .btn-cancelar { background: var(--gris-borde); color: var(--texto); }
   .mensaje-guardado { font-size: 0.8rem; color: var(--verde-ok); margin-top: 6px; }
   .mensaje-error { font-size: 0.8rem; color: var(--rojo); margin-top: 6px; }
@@ -149,24 +135,28 @@
 </head>
 <body>
 
-<header class="app-header">
-  <div>
-    <h1>Plan de Infraestructura Física UDES</h1>
-    <div class="sub">Planeación y seguimiento de proyectos transversales por campus</div>
-  </div>
+<div class="marca-wrap" id="udesHeaderMount"></div>
+
+<div class="barra-sesion">
   <div id="sesionInfo" class="oculto">
     <span id="sesionTexto"></span>
     <button id="btnSalir">Cerrar sesión</button>
   </div>
-</header>
+</div>
 
 <main>
 
   <!-- LOGIN -->
   <div id="vistaLogin" class="login-box">
     <h2>Ingresar</h2>
-    <label for="inputUsuario">Usuario</label>
-    <input id="inputUsuario" type="text" placeholder="bucaramanga / cucuta / valledupar / admin">
+    <label for="inputUsuario">Campus</label>
+    <select id="inputUsuario">
+      <option value="">Selecciona tu campus</option>
+      <option value="bucaramanga">Bucaramanga</option>
+      <option value="cucuta">Cúcuta</option>
+      <option value="valledupar">Valledupar</option>
+      <option value="admin">Administración (consolidado)</option>
+    </select>
     <label for="inputClave">Clave</label>
     <input id="inputClave" type="password">
     <button id="btnIngresar">Ingresar</button>
@@ -223,14 +213,20 @@
 
 </main>
 
-<footer>Universidad de Santander — Planta Física · Herramienta interna de planeación y seguimiento</footer>
+<footer>Universidad de Santander · Herramienta de planeación y seguimiento creada por Planeación Institucional</footer>
 
+<script src="udes-branding.js"></script>
 <script>
+UdesHeader.render('#udesHeaderMount', {
+  subtitulo: 'Plan de Infraestructura Física — Planeación y seguimiento',
+  badge: 'Planeación Institucional'
+});
+
 /* ============================================================
    CONFIGURACIÓN — pega aquí la URL del Web App de Apps Script
    una vez lo despliegues (ver instrucciones de despliegue).
    ============================================================ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxVrzGYGZRkGGR72XdYr7PAsyK9xu2R8AX6ra9W-v_HE1lokZLd-CgeEk13Q612YHdx/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxeYTdpEA8SyXU7-S3rZkxnYMA9ZWIpnv6hl5rEky-I2Rh6RuS5EovcF8St1fPxd282/exec';
 
 let sesionActual = null;
 let proyectosActuales = [];

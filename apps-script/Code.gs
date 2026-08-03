@@ -4,9 +4,18 @@
  * ejecutar setup() una vez, y desplegar como Web App (ver instrucciones adjuntas).
  */
 
+// ID del Google Sheet (se toma del final de su URL: .../d/ESTE_ID/edit).
+// Necesario porque SpreadsheetApp.getActiveSpreadsheet() devuelve null cuando
+// el script corre como Web App (sin una hoja abierta por un usuario).
+const SPREADSHEET_ID = '1S6rO2pOxsSrgCDjGxdAe2CoLWZjQ_zcfufCU1TL1Y3w';
+
 const SHEET_PROYECTOS = 'Proyectos';
 const SHEET_USUARIOS = 'Usuarios';
 const SHEET_HISTORIAL = 'Historial_Seguimiento';
+
+function getSs_() {
+  return SpreadsheetApp.openById(SPREADSHEET_ID);
+}
 
 const ESTADOS_VALIDOS = ['Sin iniciar', 'En desarrollo', 'Ejecutado', 'Atrasado'];
 const PRIORIDADES_VALIDAS = ['Alta', 'Media', 'Baja'];
@@ -58,7 +67,7 @@ const HISTORIAL_HEADERS = ['Fecha', 'N° proyecto', 'Proyecto', 'Usuario', 'Esta
  * Es seguro volver a ejecutarla: no duplica filas si "Proyectos" y "Usuarios" ya tienen datos.
  */
 function setup() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSs_();
 
   const proyectosSheet = getOrCreateSheet_(ss, SHEET_PROYECTOS);
   if (proyectosSheet.getLastRow() === 0) {
@@ -145,7 +154,7 @@ function jsonResponse_(obj) {
 
 /** Busca al usuario en la hoja "Usuarios" y valida la clave. */
 function autenticar_(usuario, clave) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSs_();
   const sheet = ss.getSheetByName(SHEET_USUARIOS);
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
@@ -168,7 +177,7 @@ function listarProyectos_(usuario, clave) {
   const sesion = autenticar_(usuario, clave);
   if (!sesion) return { ok: false, error: 'Usuario o clave incorrectos.' };
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSs_();
   const sheet = ss.getSheetByName(SHEET_PROYECTOS);
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
@@ -195,7 +204,7 @@ function actualizarProyecto_(body) {
   const sesion = autenticar_(body.usuario, body.clave);
   if (!sesion) return { ok: false, error: 'Usuario o clave incorrectos.' };
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSs_();
   const sheet = ss.getSheetByName(SHEET_PROYECTOS);
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
