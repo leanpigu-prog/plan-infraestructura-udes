@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plan de Infraestructura Física UDES</title>
+<title>Plan de Infraestructura UDES</title>
 <style>
   :root {
     --udes-navy: #0C2340;
@@ -65,6 +65,14 @@
   .login-box button:hover { background: var(--udes-navy-osc); }
   #loginError { color: var(--rojo); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
 
+  /* Selector de módulo (solo admin) */
+  .tabs-modulo { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab-modulo {
+    background: var(--blanco); border: 1px solid var(--gris-borde); color: var(--texto-suave);
+    padding: 8px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem;
+  }
+  .tab-modulo.activo { background: var(--udes-navy); color: white; border-color: var(--udes-navy); }
+
   /* Tarjetas resumen */
   .resumen-grid {
     display: grid;
@@ -109,9 +117,11 @@
   .btn-editar:hover { background: var(--udes-navy); color: white; }
   .btn-eliminar { border-color: var(--rojo); color: var(--rojo); margin-left: 6px; }
   .btn-eliminar:hover { background: var(--rojo); color: white; }
+  .btn-seguimiento { border-color: var(--udes-oro); color: var(--udes-navy-osc); margin-left: 6px; }
+  .btn-seguimiento:hover { background: var(--udes-oro); color: white; }
 
   /* Formulario de edición (fila expandida) */
-  tr.fila-edicion td { background: #FAFBFA; padding: 14px 10px; }
+  tr.fila-edicion td, tr.fila-seguimiento td { background: #FAFBFA; padding: 14px 10px; }
   .form-edicion { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
   .form-edicion label { display: block; font-size: 0.72rem; color: var(--texto-suave); margin-bottom: 3px; }
   .form-edicion input, .form-edicion select, .form-edicion textarea {
@@ -125,6 +135,21 @@
   .btn-cancelar { background: var(--gris-borde); color: var(--texto); }
   .mensaje-guardado { font-size: 0.8rem; color: var(--verde-ok); margin-top: 6px; }
   .mensaje-error { font-size: 0.8rem; color: var(--rojo); margin-top: 6px; }
+
+  /* Panel de seguimiento (hitos + evidencias + bitácora) */
+  .panel-seguimiento { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .seguimiento-bloque h4 { margin: 0 0 8px; font-size: 0.85rem; color: var(--udes-navy-osc); }
+  .item-seguimiento, .item-bitacora { border-bottom: 1px solid var(--gris-borde); padding: 8px 0; }
+  .item-seguimiento { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .item-seguimiento-acciones { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; flex-shrink: 0; }
+  .texto-vacio { font-size: 0.8rem; color: var(--texto-suave); }
+  .form-mini { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .form-mini input, .form-mini select { padding: 6px 8px; border: 1px solid var(--gris-borde); border-radius: 5px; font-size: 0.8rem; font-family: inherit; }
+  .btn-mini { padding: 5px 10px; border-radius: 5px; border: 1px solid var(--gris-borde); background: white; cursor: pointer; font-size: 0.72rem; white-space: nowrap; }
+  .btn-agregar-mini { background: var(--udes-navy); color: white; border-color: var(--udes-navy); font-weight: 600; }
+  .btn-eliminar-mini { border-color: var(--rojo); color: var(--rojo); }
+  .btn-eliminar-mini:hover { background: var(--rojo); color: white; }
+  .hito-estado-select { font-size: 0.72rem; padding: 3px 6px; border-radius: 5px; border: 1px solid var(--gris-borde); }
 
   select#filtroCampus, select#filtroPrograma, select#filtroEstado {
     padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gris-borde); font-size: 0.85rem;
@@ -162,7 +187,7 @@
     .solo-impresion p#infoImpresion { margin: 12px 0 0; font-size: 0.78rem; color: var(--texto-suave); }
 
     #udesHeaderMount, .barra-sesion, .btn-editar, .btn-nuevo, .btn-imprimir, .filtros, .form-edicion,
-    .caja-nuevo-proyecto, footer, .login-box { display: none !important; }
+    .caja-nuevo-proyecto, .fila-seguimiento, .tabs-modulo, footer, .login-box { display: none !important; }
 
     body { background: white; margin: 0; }
     main { max-width: none; padding: 0; margin: 0; }
@@ -190,7 +215,7 @@
     <img id="logoImpresion" alt="UDES">
     <div class="ei-texto">
       <strong>Universidad de Santander</strong>
-      <h1>Plan de Infraestructura Física — Informe</h1>
+      <h1>Plan de Infraestructura — Informe</h1>
     </div>
   </div>
   <p id="infoImpresion"></p>
@@ -201,33 +226,37 @@
   <!-- LOGIN -->
   <div id="vistaLogin" class="login-box">
     <h2>Ingresar</h2>
-    <label for="inputUsuario">Campus</label>
+    <label for="inputUsuario">Usuario</label>
     <select id="inputUsuario">
-      <option value="">Selecciona tu campus</option>
-      <option value="bucaramanga">Bucaramanga</option>
-      <option value="cucuta">Cúcuta</option>
-      <option value="valledupar">Valledupar</option>
+      <option value="">Selecciona una opción</option>
       <option value="admin">Administración (consolidado)</option>
+      <option value="infraestructura">Infraestructura Física</option>
+      <option value="tecnologia">Infraestructura Tecnológica</option>
+      <option value="__otro__">Soy responsable de un proyecto</option>
     </select>
+    <div id="cajaUsuarioPersonalizado" class="oculto">
+      <label for="inputUsuarioPersonalizado">Tu usuario asignado</label>
+      <input id="inputUsuarioPersonalizado" type="text" placeholder="usuario">
+    </div>
     <label for="inputClave">Clave</label>
     <input id="inputClave" type="password">
     <button id="btnIngresar">Ingresar</button>
     <div id="loginError"></div>
   </div>
 
-  <!-- VISTA RESPONSABLE DE CAMPUS -->
+  <!-- VISTA DE UN SOLO MÓDULO (responsable de campus o rol tecnología) -->
   <div id="vistaCampus" class="oculto">
     <div class="resumen-grid" id="resumenCampus"></div>
     <section class="panel">
       <div class="acciones-tabla">
-        <h3 style="margin:0">Proyectos de mi campus</h3>
+        <h3 id="tituloProyectosCampus" style="margin:0">Proyectos de mi campus</h3>
         <button class="btn-nuevo" id="btnNuevoCampus">+ Nuevo proyecto</button>
       </div>
       <div id="cajaNuevoCampus" class="caja-nuevo-proyecto oculto"></div>
       <table class="tabla-proyectos" id="tablaCampus">
         <thead>
           <tr>
-            <th>N°</th><th>Proyecto</th><th>Programa</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
+            <th>N°</th><th>Proyecto</th><th id="thModuloCampus" class="oculto">Módulo</th><th id="thCategoriaCampus">Programa</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyCampus"></tbody>
@@ -237,10 +266,11 @@
 
   <!-- VISTA ADMIN / CONSOLIDADO -->
   <div id="vistaAdmin" class="oculto">
+    <div class="tabs-modulo" id="tabsModulo"></div>
     <div class="resumen-grid" id="resumenAdmin"></div>
 
     <section class="panel">
-      <h3>Proyectos por programa y campus</h3>
+      <h3 id="tituloMatriz">Proyectos por programa y campus</h3>
       <div id="matrizProgramaCampus"></div>
     </section>
 
@@ -263,7 +293,7 @@
       <table class="tabla-proyectos" id="tablaAdmin">
         <thead>
           <tr>
-            <th>N°</th><th>Proyecto</th><th>Campus</th><th>Programa</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
+            <th>N°</th><th>Proyecto</th><th>Campus</th><th id="thCategoriaAdmin">Programa</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyAdmin"></tbody>
@@ -278,7 +308,7 @@
 <script src="udes-branding.js"></script>
 <script>
 UdesHeader.render('#udesHeaderMount', {
-  subtitulo: 'Plan de Infraestructura Física — Planeación y seguimiento',
+  subtitulo: 'Plan Maestro de Infraestructura Física y Tecnológica — Planeación y seguimiento',
   badge: 'Planeación Institucional'
 });
 
@@ -286,13 +316,16 @@ UdesHeader.render('#udesHeaderMount', {
    CONFIGURACIÓN — pega aquí la URL del Web App de Apps Script
    una vez lo despliegues (ver instrucciones de despliegue).
    ============================================================ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbzgEcWu5m88SDxLiCF78qzgDdesR7-_vyo1IpTJ4jv9zrC9xAc1TkW7dwT9c4GNJDI/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxcw3okpBUrlKa-BaMgk8eZ_EjKr3UVlVDtO_E-b84kcYcTsu0RVX7So8vm6zRnish2/exec';
 
 let sesionActual = null;
 let proyectosActuales = [];
 
 const ESTADOS = ['Sin iniciar', 'En desarrollo', 'Ejecutado', 'Atrasado'];
 const PRIORIDADES = ['Alta', 'Media', 'Baja'];
+const HITO_ESTADOS = ['Pendiente', 'Cumplido', 'Atrasado'];
+const EVIDENCIA_TIPOS = ['Acta', 'Informe', 'Fotografía', 'Contrato/Convenio', 'Soporte de pago', 'Documento técnico', 'Otro'];
+
 const PROGRAMAS = [
   'Movilidad y accesibilidad',
   'Expansión académica',
@@ -302,8 +335,32 @@ const PROGRAMAS = [
   'Ciencia, tecnología e innovación',
   'Reserva de suelo',
 ];
+const LINEAS_TI = [
+  'Infraestructura de procesamiento y almacenamiento',
+  'Plataformas institucionales',
+  'Servicios tecnológicos',
+  'Seguridad de la infraestructura tecnológica',
+  'Analítica, datos e IA',
+  'Infraestructura tecnológica para docencia e investigación',
+];
 const CAMPUSES = ['Bucaramanga', 'Cúcuta', 'Valledupar'];
 const NUMERO_MAXIMO_PLAN_MAESTRO = 19;
+
+const MODULOS_CONFIG = {
+  fisica: {
+    label: 'Infraestructura Física',
+    categoriaLabel: 'Programa',
+    categoriaLabelTodos: 'Todos los programas',
+    categorias: PROGRAMAS,
+  },
+  tecnologica: {
+    label: 'Infraestructura Tecnológica',
+    categoriaLabel: 'Línea',
+    categoriaLabelTodos: 'Todas las líneas',
+    categorias: LINEAS_TI,
+  },
+};
+let moduloActivo = 'fisica';
 
 function claseBadgeEstado(estado) {
   const map = { 'Sin iniciar': 'sin-iniciar', 'En desarrollo': 'en-desarrollo', 'Ejecutado': 'ejecutado', 'Atrasado': 'atrasado' };
@@ -312,6 +369,10 @@ function claseBadgeEstado(estado) {
 function claseBadgePrioridad(p) {
   const map = { 'Alta': 'prioridad-alta', 'Media': 'prioridad-media', 'Baja': 'prioridad-baja' };
   return map[p] || 'prioridad-baja';
+}
+function claseBadgeHito(estado) {
+  const map = { 'Pendiente': 'sin-iniciar', 'Cumplido': 'ejecutado', 'Atrasado': 'atrasado' };
+  return map[estado] || 'sin-iniciar';
 }
 
 async function llamarApi(payload) {
@@ -337,13 +398,18 @@ function borrarSesion() {
 
 document.getElementById('btnIngresar').addEventListener('click', hacerLogin);
 document.getElementById('inputClave').addEventListener('keydown', function (e) { if (e.key === 'Enter') hacerLogin(); });
+document.getElementById('inputUsuario').addEventListener('change', function () {
+  const esOtro = this.value === '__otro__';
+  document.getElementById('cajaUsuarioPersonalizado').classList.toggle('oculto', !esOtro);
+});
 document.getElementById('btnSalir').addEventListener('click', function () {
   borrarSesion();
   location.reload();
 });
 
 async function hacerLogin() {
-  const usuario = document.getElementById('inputUsuario').value.trim();
+  const seleccion = document.getElementById('inputUsuario').value.trim();
+  const usuario = seleccion === '__otro__' ? document.getElementById('inputUsuarioPersonalizado').value.trim() : seleccion;
   const clave = document.getElementById('inputClave').value;
   const errorEl = document.getElementById('loginError');
   errorEl.textContent = '';
@@ -364,23 +430,94 @@ async function hacerLogin() {
   }
 }
 
+function moduloDe(p) {
+  return (p && p._modulo) || moduloActivo;
+}
+
+function textoSesion() {
+  if (sesionActual.rol === 'admin') return 'Administración · Vista consolidada (' + MODULOS_CONFIG[moduloActivo].label + ')';
+  if (sesionActual.rol === 'infraestructura') return 'Infraestructura Física · Vista institucional';
+  if (sesionActual.rol === 'tecnologia') return 'Infraestructura Tecnológica · Dirección de TI';
+  if (sesionActual.rol === 'responsable_proyecto') return (sesionActual.nombreAsociado || sesionActual.usuario) + ' · Proyectos asignados';
+  return sesionActual.usuario;
+}
+
 async function cargarPostLogin() {
-  const data = await llamarApi({ action: 'listarProyectos', usuario: sesionActual.usuario, clave: sesionActual.clave });
-  if (!data.ok) { alert(data.error); return; }
-  proyectosActuales = data.proyectos;
+  if (sesionActual.rol === 'infraestructura') moduloActivo = 'fisica';
+  else if (sesionActual.rol === 'tecnologia') moduloActivo = 'tecnologica';
+
+  if (sesionActual.rol === 'responsable_proyecto') {
+    const [rFisica, rTecnologica] = await Promise.all([
+      llamarApi({ action: 'listarProyectos', usuario: sesionActual.usuario, clave: sesionActual.clave, modulo: 'fisica' }),
+      llamarApi({ action: 'listarProyectos', usuario: sesionActual.usuario, clave: sesionActual.clave, modulo: 'tecnologica' }),
+    ]);
+    if (!rFisica.ok && !rTecnologica.ok) { alert(rFisica.error || rTecnologica.error); return; }
+    const fisicaProyectos = (rFisica.ok ? rFisica.proyectos : []).map(p => Object.assign({ _modulo: 'fisica' }, p));
+    const tecnologicaProyectos = (rTecnologica.ok ? rTecnologica.proyectos : []).map(p => Object.assign({ _modulo: 'tecnologica' }, p));
+    proyectosActuales = fisicaProyectos.concat(tecnologicaProyectos);
+  } else {
+    const data = await llamarApi({ action: 'listarProyectos', usuario: sesionActual.usuario, clave: sesionActual.clave, modulo: moduloActivo });
+    if (!data.ok) { alert(data.error); return; }
+    proyectosActuales = data.proyectos;
+  }
 
   document.getElementById('vistaLogin').classList.add('oculto');
   document.getElementById('sesionInfo').classList.remove('oculto');
-  document.getElementById('sesionTexto').textContent =
-    sesionActual.rol === 'admin' ? 'Administración · Vista consolidada' : sesionActual.campus + ' · Responsable de campus';
+  document.getElementById('sesionTexto').textContent = textoSesion();
 
   if (sesionActual.rol === 'admin') {
     document.getElementById('vistaAdmin').classList.remove('oculto');
+    document.getElementById('vistaCampus').classList.add('oculto');
     renderAdmin();
   } else {
     document.getElementById('vistaCampus').classList.remove('oculto');
+    document.getElementById('vistaAdmin').classList.add('oculto');
+    document.getElementById('tituloProyectosCampus').textContent =
+      sesionActual.rol === 'tecnologia' ? 'Proyectos de infraestructura tecnológica'
+      : sesionActual.rol === 'infraestructura' ? 'Proyectos de infraestructura física'
+      : 'Mis proyectos asignados';
+    document.getElementById('thModuloCampus').classList.toggle('oculto', sesionActual.rol !== 'responsable_proyecto');
+    document.getElementById('thCategoriaCampus').textContent =
+      sesionActual.rol === 'responsable_proyecto' ? 'Categoría' : MODULOS_CONFIG[moduloActivo].categoriaLabel;
+    document.getElementById('btnNuevoCampus').classList.toggle('oculto', sesionActual.rol === 'responsable_proyecto');
     renderCampus();
   }
+}
+
+function renderTabsModulo() {
+  const cont = document.getElementById('tabsModulo');
+  cont.innerHTML = Object.keys(MODULOS_CONFIG).map(function (key) {
+    return `<button class="tab-modulo ${key === moduloActivo ? 'activo' : ''}" data-modulo="${key}">${MODULOS_CONFIG[key].label}</button>`;
+  }).join('');
+  cont.querySelectorAll('.tab-modulo').forEach(function (btn) {
+    btn.addEventListener('click', function () { cambiarModulo(btn.dataset.modulo); });
+  });
+}
+
+async function cambiarModulo(nuevoModulo) {
+  if (nuevoModulo === moduloActivo) return;
+  moduloActivo = nuevoModulo;
+  resetFiltros();
+  try {
+    const data = await llamarApi({ action: 'listarProyectos', usuario: sesionActual.usuario, clave: sesionActual.clave, modulo: moduloActivo });
+    if (!data.ok) { alert(data.error); return; }
+    proyectosActuales = data.proyectos;
+    document.getElementById('sesionTexto').textContent = textoSesion();
+    renderAdmin();
+  } catch (err) {
+    alert('Error de conexión: ' + err);
+  }
+}
+
+function resetFiltros() {
+  const cfg = MODULOS_CONFIG[moduloActivo];
+  const selCampus = document.getElementById('filtroCampus');
+  const selPrograma = document.getElementById('filtroPrograma');
+  const selEstado = document.getElementById('filtroEstado');
+  [selCampus, selPrograma, selEstado].forEach(function (s) { s.innerHTML = ''; delete s.dataset.poblado; });
+  selCampus.appendChild(new Option('Todos los campus', ''));
+  selPrograma.appendChild(new Option(cfg.categoriaLabelTodos, ''));
+  selEstado.appendChild(new Option('Todos los estados', ''));
 }
 
 function estaAtrasado(p) {
@@ -390,7 +527,7 @@ function estaAtrasado(p) {
   return fin < new Date();
 }
 
-/* -------- Vista responsable de campus -------- */
+/* -------- Vista de un solo módulo (responsable de campus o rol tecnología) -------- */
 function renderCampus() {
   const total = proyectosActuales.length;
   const ejecutados = proyectosActuales.filter(p => p.Estado === 'Ejecutado').length;
@@ -406,11 +543,17 @@ function renderCampus() {
 
   const tbody = document.getElementById('tbodyCampus');
   tbody.innerHTML = '';
-  proyectosActuales.forEach(p => tbody.appendChild(filaProyecto(p, false)));
+  const mostrarModulo = sesionActual.rol === 'responsable_proyecto';
+  proyectosActuales.forEach(p => tbody.appendChild(filaProyecto(p, { mostrarCampus: false, mostrarModulo: mostrarModulo })));
 }
 
 /* -------- Vista admin / consolidado -------- */
 function renderAdmin() {
+  renderTabsModulo();
+  const cfg = MODULOS_CONFIG[moduloActivo];
+  document.getElementById('thCategoriaAdmin').textContent = cfg.categoriaLabel;
+  document.getElementById('tituloMatriz').textContent = `Proyectos por ${cfg.categoriaLabel.toLowerCase()} y campus`;
+
   const total = proyectosActuales.length;
   const ejecutados = proyectosActuales.filter(p => p.Estado === 'Ejecutado').length;
   const avancePromedio = total ? Math.round(proyectosActuales.reduce((a, p) => a + (Number(p['% avance']) || 0), 0) / total) : 0;
@@ -432,22 +575,23 @@ function renderAdmin() {
 }
 
 function renderMatrizProgramaCampus() {
+  const cfg = MODULOS_CONFIG[moduloActivo];
   const campuses = [...new Set(proyectosActuales.map(p => p.Campus))];
-  const programas = [...new Set(proyectosActuales.map(p => p.Programa))];
+  const categorias = [...new Set(proyectosActuales.map(p => p[cfg.categoriaLabel]))];
 
-  let html = '<table class="tabla-proyectos"><thead><tr><th>Programa</th>';
+  let html = `<table class="tabla-proyectos"><thead><tr><th>${cfg.categoriaLabel}</th>`;
   campuses.forEach(c => html += `<th>${c}</th>`);
   html += '<th>Total</th></tr></thead><tbody>';
 
-  programas.forEach(prog => {
-    html += `<tr><td>${prog}</td>`;
-    let totalPrograma = 0;
+  categorias.forEach(cat => {
+    html += `<tr><td>${cat}</td>`;
+    let totalCategoria = 0;
     campuses.forEach(c => {
-      const n = proyectosActuales.filter(p => p.Programa === prog && p.Campus === c).length;
-      totalPrograma += n;
+      const n = proyectosActuales.filter(p => p[cfg.categoriaLabel] === cat && p.Campus === c).length;
+      totalCategoria += n;
       html += `<td>${n || '–'}</td>`;
     });
-    html += `<td><strong>${totalPrograma}</strong></td></tr>`;
+    html += `<td><strong>${totalCategoria}</strong></td></tr>`;
   });
   html += '</tbody></table>';
   document.getElementById('matrizProgramaCampus').innerHTML = html;
@@ -467,15 +611,16 @@ function renderAlertas() {
 }
 
 function poblarFiltros() {
+  const cfg = MODULOS_CONFIG[moduloActivo];
   const campuses = [...new Set(proyectosActuales.map(p => p.Campus))];
-  const programas = [...new Set(proyectosActuales.map(p => p.Programa))];
+  const categorias = [...new Set(proyectosActuales.map(p => p[cfg.categoriaLabel]))];
   const selCampus = document.getElementById('filtroCampus');
   const selPrograma = document.getElementById('filtroPrograma');
   const selEstado = document.getElementById('filtroEstado');
 
   if (selCampus.dataset.poblado) return;
   campuses.forEach(c => selCampus.appendChild(new Option(c, c)));
-  programas.forEach(p => selPrograma.appendChild(new Option(p, p)));
+  categorias.forEach(c => selPrograma.appendChild(new Option(c, c)));
   ESTADOS.forEach(e => selEstado.appendChild(new Option(e, e)));
 
   [selCampus, selPrograma, selEstado].forEach(s => s.addEventListener('change', renderTablaAdmin));
@@ -483,19 +628,20 @@ function poblarFiltros() {
 }
 
 function renderTablaAdmin() {
+  const cfg = MODULOS_CONFIG[moduloActivo];
   const fCampus = document.getElementById('filtroCampus').value;
   const fPrograma = document.getElementById('filtroPrograma').value;
   const fEstado = document.getElementById('filtroEstado').value;
 
   const filtrados = proyectosActuales.filter(p =>
     (!fCampus || p.Campus === fCampus) &&
-    (!fPrograma || p.Programa === fPrograma) &&
+    (!fPrograma || p[cfg.categoriaLabel] === fPrograma) &&
     (!fEstado || p.Estado === fEstado)
   );
 
   const tbody = document.getElementById('tbodyAdmin');
   tbody.innerHTML = '';
-  filtrados.forEach(p => tbody.appendChild(filaProyecto(p, true)));
+  filtrados.forEach(p => tbody.appendChild(filaProyecto(p, { mostrarCampus: true })));
 }
 
 function formatoFecha(valor) {
@@ -504,19 +650,34 @@ function formatoFecha(valor) {
   if (isNaN(d.getTime())) return valor;
   return d.toLocaleDateString('es-CO');
 }
+function formatoFechaHora(valor) {
+  if (!valor) return '–';
+  const d = new Date(valor);
+  if (isNaN(d.getTime())) return valor;
+  return d.toLocaleString('es-CO');
+}
 
-/* -------- Fila de proyecto (compartida entre vista campus y admin) -------- */
-function filaProyecto(p, mostrarCampus) {
+/* -------- Fila de proyecto (compartida entre vista de módulo único y admin) -------- */
+function filaProyecto(p, opts) {
+  opts = opts || {};
+  const mostrarCampus = !!opts.mostrarCampus;
+  const mostrarModulo = !!opts.mostrarModulo;
   const tr = document.createElement('tr');
+  const modP = moduloDe(p);
+  const cfg = MODULOS_CONFIG[modP];
+  const categoria = p[cfg.categoriaLabel];
   const avance = Number(p['% avance']) || 0;
-  const esPlanMaestro = Number(p['N°']) <= NUMERO_MAXIMO_PLAN_MAESTRO;
+  const mostrarBadgeOrigen = modP === 'fisica';
+  const esPlanMaestro = mostrarBadgeOrigen && Number(p['N°']) <= NUMERO_MAXIMO_PLAN_MAESTRO;
+  const puedeGestionar = sesionActual.rol !== 'responsable_proyecto';
   tr.innerHTML = `
     <td>${p['N°']}</td>
     <td>${p.Proyecto}<div style="font-size:0.72rem;color:var(--texto-suave)">${p.Descripción || ''}</div>
-      <span class="badge-origen ${esPlanMaestro ? '' : 'nuevo'}">${esPlanMaestro ? 'Plan Maestro' : 'Nuevo'}</span>
+      ${mostrarBadgeOrigen ? `<span class="badge-origen ${esPlanMaestro ? '' : 'nuevo'}">${esPlanMaestro ? 'Plan Maestro' : 'Nuevo'}</span>` : ''}
     </td>
-    ${mostrarCampus ? `<td>${p.Campus}</td>` : ''}
-    <td>${p.Programa}</td>
+    ${mostrarModulo ? `<td>${cfg.label}</td>` : ''}
+    ${mostrarCampus ? `<td>${p.Campus || '–'}</td>` : ''}
+    <td>${categoria || '–'}</td>
     <td><span class="badge ${claseBadgeEstado(p.Estado)}">${p.Estado || 'Sin iniciar'}</span></td>
     <td>${p.Prioridad ? `<span class="badge ${claseBadgePrioridad(p.Prioridad)}">${p.Prioridad}</span>` : '–'}</td>
     <td>
@@ -525,11 +686,14 @@ function filaProyecto(p, mostrarCampus) {
     </td>
     <td style="white-space:nowrap">
       <button class="btn-editar">Editar</button>
-      <button class="btn-editar btn-eliminar">Eliminar</button>
+      <button class="btn-editar btn-seguimiento">Seguimiento</button>
+      ${puedeGestionar ? `<button class="btn-editar btn-eliminar">Eliminar</button>` : ''}
     </td>
   `;
-  tr.querySelector('.btn-editar:not(.btn-eliminar)').addEventListener('click', () => abrirEdicion(tr, p));
-  tr.querySelector('.btn-eliminar').addEventListener('click', () => eliminarProyecto(p));
+  tr.querySelector('.btn-editar:not(.btn-eliminar):not(.btn-seguimiento)').addEventListener('click', () => abrirEdicion(tr, p));
+  tr.querySelector('.btn-seguimiento').addEventListener('click', () => abrirSeguimiento(tr, p));
+  const btnEliminar = tr.querySelector('.btn-eliminar');
+  if (btnEliminar) btnEliminar.addEventListener('click', () => eliminarProyecto(p));
   return tr;
 }
 
@@ -542,6 +706,7 @@ async function eliminarProyecto(p) {
       action: 'eliminarProyecto',
       usuario: sesionActual.usuario,
       clave: sesionActual.clave,
+      modulo: moduloDe(p),
       numero: p['N°'],
     });
     if (!data.ok) { alert(data.error); return; }
@@ -551,9 +716,18 @@ async function eliminarProyecto(p) {
   }
 }
 
-function abrirEdicion(filaProyectoTr, p) {
+function cerrarPanelHermano(filaProyectoTr) {
   const existente = filaProyectoTr.nextElementSibling;
-  if (existente && existente.classList.contains('fila-edicion')) { existente.remove(); return; }
+  if (existente && (existente.classList.contains('fila-edicion') || existente.classList.contains('fila-seguimiento'))) {
+    existente.remove();
+    return existente;
+  }
+  return null;
+}
+
+function abrirEdicion(filaProyectoTr, p) {
+  const cerrado = cerrarPanelHermano(filaProyectoTr);
+  if (cerrado && cerrado.classList.contains('fila-edicion')) return;
 
   const numCols = filaProyectoTr.children.length;
   const tr = document.createElement('tr');
@@ -605,6 +779,7 @@ async function guardarEdicion(p, td, trEdicion) {
     action: 'actualizarProyecto',
     usuario: sesionActual.usuario,
     clave: sesionActual.clave,
+    modulo: moduloDe(p),
     numero: p['N°'],
     costoEstimado: td.querySelector('#edCosto').value,
     fuenteFinanciacion: td.querySelector('#edFuente').value,
@@ -630,11 +805,182 @@ async function guardarEdicion(p, td, trEdicion) {
   }
 }
 
+/* -------- Panel de seguimiento: cronograma de hitos, evidencias y bitácora -------- */
+async function abrirSeguimiento(filaProyectoTr, p) {
+  const cerrado = cerrarPanelHermano(filaProyectoTr);
+  if (cerrado && cerrado.classList.contains('fila-seguimiento')) return;
+
+  const numCols = filaProyectoTr.children.length;
+  const tr = document.createElement('tr');
+  tr.className = 'fila-seguimiento';
+  const td = document.createElement('td');
+  td.colSpan = numCols;
+  td.innerHTML = '<p class="texto-vacio">Cargando seguimiento...</p>';
+  tr.appendChild(td);
+  filaProyectoTr.after(tr);
+
+  await recargarSeguimiento(p, td);
+}
+
+async function recargarSeguimiento(p, td) {
+  try {
+    const data = await llamarApi({
+      action: 'listarSeguimiento',
+      usuario: sesionActual.usuario,
+      clave: sesionActual.clave,
+      modulo: moduloDe(p),
+      numero: p['N°'],
+    });
+    if (!data.ok) { td.innerHTML = `<p class="mensaje-error">${data.error}</p>`; return; }
+    renderSeguimiento(td, p, data);
+  } catch (err) {
+    td.innerHTML = `<p class="mensaje-error">Error de conexión: ${err}</p>`;
+  }
+}
+
+function renderSeguimiento(td, p, data) {
+  const hitosHtml = data.hitos.length ? data.hitos.map(h => `
+    <div class="item-seguimiento">
+      <div>
+        <strong>${h['Título']}</strong> <span class="badge ${claseBadgeHito(h.Estado)}">${h.Estado}</span>
+        <div style="font-size:0.72rem;color:var(--texto-suave)">${h.Periodo || ''} · Objetivo: ${formatoFecha(h['Fecha objetivo'])}${h.Responsable ? ' · ' + h.Responsable : ''}</div>
+        ${h.Comentario ? `<div style="font-size:0.75rem">${h.Comentario}</div>` : ''}
+      </div>
+      <div class="item-seguimiento-acciones">
+        <select class="hito-estado-select" data-id="${h.ID}">${HITO_ESTADOS.map(e => `<option ${e === h.Estado ? 'selected' : ''}>${e}</option>`).join('')}</select>
+        <button class="btn-mini btn-eliminar-mini" data-id="${h.ID}" data-tipo="hito">Eliminar</button>
+      </div>
+    </div>
+  `).join('') : '<p class="texto-vacio">Sin hitos registrados.</p>';
+
+  const evidenciasHtml = data.evidencias.length ? data.evidencias.map(e => `
+    <div class="item-seguimiento">
+      <div>
+        <strong>${e.Tipo}</strong>${e.Descripción ? ' · ' + e.Descripción : ''}
+        <div style="font-size:0.72rem;color:var(--texto-suave)">${formatoFecha(e.Fecha)}${e['Subido por'] ? ' · ' + e['Subido por'] : ''}</div>
+        <a href="${e.Link}" target="_blank" rel="noopener" style="font-size:0.78rem">${e.Link}</a>
+      </div>
+      <div class="item-seguimiento-acciones">
+        <button class="btn-mini btn-eliminar-mini" data-id="${e.ID}" data-tipo="evidencia">Eliminar</button>
+      </div>
+    </div>
+  `).join('') : '<p class="texto-vacio">Sin evidencias registradas.</p>';
+
+  const historialHtml = data.historial.length ? data.historial.slice().reverse().map(h => `
+    <div class="item-bitacora">
+      <span style="font-size:0.72rem;color:var(--texto-suave)">${formatoFechaHora(h.Fecha)} · ${h.Usuario}</span>
+      <div style="font-size:0.8rem">${h['Estado anterior']} → ${h['Estado nuevo']}${h['% avance'] !== '' ? ' (' + h['% avance'] + '%)' : ''}</div>
+      ${h.Comentario ? `<div style="font-size:0.78rem;color:var(--texto-suave)">${h.Comentario}</div>` : ''}
+    </div>
+  `).join('') : '<p class="texto-vacio">Sin movimientos registrados.</p>';
+
+  td.innerHTML = `
+    <div class="panel-seguimiento">
+      <div class="seguimiento-bloque">
+        <h4>Cronograma de hitos</h4>
+        ${hitosHtml}
+        <div class="form-mini">
+          <input type="text" id="nvHitoTitulo" placeholder="Título del hito">
+          <input type="text" id="nvHitoPeriodo" placeholder="Periodo (ej. 2027-Q1 o 2027-S1)">
+          <input type="date" id="nvHitoFecha">
+          <button class="btn-mini btn-agregar-mini" id="btnAgregarHito">+ Agregar hito</button>
+        </div>
+      </div>
+      <div class="seguimiento-bloque">
+        <h4>Evidencias</h4>
+        ${evidenciasHtml}
+        <div class="form-mini">
+          <select id="nvEvidenciaTipo">${EVIDENCIA_TIPOS.map(t => `<option>${t}</option>`).join('')}</select>
+          <input type="text" id="nvEvidenciaLink" placeholder="Link (https://...)">
+          <input type="text" id="nvEvidenciaDescripcion" placeholder="Descripción breve (opcional)">
+          <button class="btn-mini btn-agregar-mini" id="btnAgregarEvidencia">+ Agregar evidencia</button>
+        </div>
+      </div>
+      <div class="seguimiento-bloque">
+        <h4>Bitácora</h4>
+        ${historialHtml}
+      </div>
+    </div>
+    <div id="segMensaje"></div>
+  `;
+
+  td.querySelector('#btnAgregarHito').addEventListener('click', () => agregarHito(p, td));
+  td.querySelector('#btnAgregarEvidencia').addEventListener('click', () => agregarEvidencia(p, td));
+  td.querySelectorAll('.hito-estado-select').forEach(sel => {
+    sel.addEventListener('change', () => actualizarEstadoHito(sel.dataset.id, sel.value, p, td));
+  });
+  td.querySelectorAll('.btn-eliminar-mini').forEach(btn => {
+    btn.addEventListener('click', () => eliminarItemSeguimiento(btn.dataset.tipo, btn.dataset.id, p, td));
+  });
+}
+
+async function agregarHito(p, td) {
+  const msg = td.querySelector('#segMensaje');
+  const titulo = td.querySelector('#nvHitoTitulo').value.trim();
+  const fecha = td.querySelector('#nvHitoFecha').value;
+  if (!titulo || !fecha) { msg.textContent = 'Título y fecha objetivo son obligatorios.'; msg.className = 'mensaje-error'; return; }
+  try {
+    const data = await llamarApi({
+      action: 'crearHito', usuario: sesionActual.usuario, clave: sesionActual.clave, modulo: moduloDe(p),
+      numero: p['N°'], titulo: titulo, periodo: td.querySelector('#nvHitoPeriodo').value, fechaObjetivo: fecha,
+    });
+    if (!data.ok) { msg.textContent = data.error; msg.className = 'mensaje-error'; return; }
+    await recargarSeguimiento(p, td);
+  } catch (err) {
+    msg.textContent = 'Error de conexión: ' + err; msg.className = 'mensaje-error';
+  }
+}
+
+async function actualizarEstadoHito(id, estado, p, td) {
+  try {
+    const data = await llamarApi({ action: 'actualizarHito', usuario: sesionActual.usuario, clave: sesionActual.clave, modulo: moduloDe(p), id: id, estado: estado });
+    if (!data.ok) { alert(data.error); }
+    await recargarSeguimiento(p, td);
+  } catch (err) {
+    alert('Error de conexión: ' + err);
+  }
+}
+
+async function agregarEvidencia(p, td) {
+  const msg = td.querySelector('#segMensaje');
+  const link = td.querySelector('#nvEvidenciaLink').value.trim();
+  if (!/^https?:\/\//i.test(link)) { msg.textContent = 'El link debe ser una URL válida (http/https).'; msg.className = 'mensaje-error'; return; }
+  try {
+    const data = await llamarApi({
+      action: 'agregarEvidencia', usuario: sesionActual.usuario, clave: sesionActual.clave, modulo: moduloDe(p),
+      numero: p['N°'], tipo: td.querySelector('#nvEvidenciaTipo').value, link: link,
+      descripcion: td.querySelector('#nvEvidenciaDescripcion').value,
+    });
+    if (!data.ok) { msg.textContent = data.error; msg.className = 'mensaje-error'; return; }
+    await recargarSeguimiento(p, td);
+  } catch (err) {
+    msg.textContent = 'Error de conexión: ' + err; msg.className = 'mensaje-error';
+  }
+}
+
+async function eliminarItemSeguimiento(tipo, id, p, td) {
+  const confirmado = confirm('¿Eliminar este ' + (tipo === 'hito' ? 'hito' : 'evidencia') + '?');
+  if (!confirmado) return;
+  const action = tipo === 'hito' ? 'eliminarHito' : 'eliminarEvidencia';
+  try {
+    const data = await llamarApi({ action: action, usuario: sesionActual.usuario, clave: sesionActual.clave, modulo: moduloDe(p), id: id });
+    if (!data.ok) { alert(data.error); return; }
+    await recargarSeguimiento(p, td);
+  } catch (err) {
+    alert('Error de conexión: ' + err);
+  }
+}
+
 /* -------- Imprimir informe -------- */
 document.getElementById('btnImprimir').addEventListener('click', function () {
   const cuando = new Date().toLocaleString('es-CO');
-  const quien = sesionActual.rol === 'admin' ? 'Administración (vista consolidada)' : sesionActual.campus;
-  document.getElementById('infoImpresion').textContent = `Generado por ${quien} el ${cuando}`;
+  const quien = sesionActual.rol === 'admin' ? 'Administración (vista consolidada)'
+    : sesionActual.rol === 'infraestructura' ? 'Infraestructura Física'
+    : sesionActual.rol === 'tecnologia' ? 'Dirección de TI'
+    : (sesionActual.nombreAsociado || sesionActual.usuario);
+  const moduloTexto = sesionActual.rol === 'responsable_proyecto' ? 'Física y Tecnológica (proyectos asignados)' : MODULOS_CONFIG[moduloActivo].label;
+  document.getElementById('infoImpresion').textContent =
+    `Generado por ${quien} el ${cuando} · Módulo: ${moduloTexto}`;
 
   const logoOrigen = document.querySelector('#udesHeaderMount .udes-header-logo');
   if (logoOrigen) document.getElementById('logoImpresion').src = logoOrigen.src;
@@ -650,11 +996,13 @@ function toggleFormularioNuevo(contenedorId, mostrarCampus) {
   const caja = document.getElementById(contenedorId);
   if (!caja.classList.contains('oculto')) { caja.classList.add('oculto'); caja.innerHTML = ''; return; }
   caja.classList.remove('oculto');
+  const cfg = MODULOS_CONFIG[moduloActivo];
+  const opcionesCampus = moduloActivo === 'tecnologica' ? ['Todos'].concat(CAMPUSES) : CAMPUSES;
   caja.innerHTML = `
     <div class="form-edicion">
       <div><label>Proyecto</label><input type="text" id="nvProyecto_${contenedorId}" placeholder="Nombre del proyecto"></div>
-      ${mostrarCampus ? `<div><label>Campus</label><select id="nvCampus_${contenedorId}">${CAMPUSES.map(c => `<option>${c}</option>`).join('')}</select></div>` : ''}
-      <div><label>Programa</label><select id="nvPrograma_${contenedorId}">${PROGRAMAS.map(p => `<option>${p}</option>`).join('')}</select></div>
+      ${mostrarCampus ? `<div><label>Campus</label><select id="nvCampus_${contenedorId}">${opcionesCampus.map(c => `<option>${c}</option>`).join('')}</select></div>` : ''}
+      <div><label>${cfg.categoriaLabel}</label><select id="nvCategoria_${contenedorId}">${cfg.categorias.map(c => `<option>${c}</option>`).join('')}</select></div>
       <div><label>Prioridad</label><select id="nvPrioridad_${contenedorId}"><option value="">–</option>${PRIORIDADES.map(pr => `<option>${pr}</option>`).join('')}</select></div>
       <div><label>Responsable</label><input type="text" id="nvResponsable_${contenedorId}" placeholder="Nombre del responsable"></div>
       <div><label>Costo estimado</label><input type="number" id="nvCosto_${contenedorId}"></div>
@@ -682,8 +1030,9 @@ async function guardarNuevoProyecto(contenedorId, mostrarCampus) {
     action: 'crearProyecto',
     usuario: sesionActual.usuario,
     clave: sesionActual.clave,
+    modulo: moduloActivo,
     proyecto: proyecto,
-    programa: document.getElementById(`nvPrograma_${contenedorId}`).value,
+    categoria: document.getElementById(`nvCategoria_${contenedorId}`).value,
     descripcion: document.getElementById(`nvDescripcion_${contenedorId}`).value,
     prioridad: document.getElementById(`nvPrioridad_${contenedorId}`).value,
     responsable: document.getElementById(`nvResponsable_${contenedorId}`).value,
