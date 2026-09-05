@@ -44,10 +44,83 @@
   main { max-width: 1200px; margin: 0 auto; padding: 24px; }
   .oculto { display: none !important; }
 
-  /* Login */
+  /* Login — layout de dos columnas */
+  .login-wrapper {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    max-width: 860px;
+    margin: 48px auto;
+  }
+  .login-instrucciones {
+    flex: 1 1 420px;
+    background: var(--udes-navy);
+    color: var(--blanco);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  }
+  .login-instrucciones h2 {
+    margin: 0 0 6px;
+    font-size: 1.15rem;
+    color: var(--udes-oro);
+    letter-spacing: 0.01em;
+  }
+  .login-instrucciones .subtitulo {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.65);
+    margin: 0 0 20px;
+  }
+  .login-instrucciones h3 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--udes-oro);
+    margin: 20px 0 8px;
+  }
+  .login-instrucciones p {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.88);
+    margin: 0 0 8px;
+  }
+  .roles-lista { list-style: none; padding: 0; margin: 0 0 4px; }
+  .roles-lista li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.87rem;
+    color: rgba(255,255,255,0.88);
+    line-height: 1.45;
+  }
+  .roles-lista li:last-child { border-bottom: none; }
+  .roles-lista .rol-icono { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .roles-lista strong { color: var(--udes-oro); display: block; font-size: 0.85rem; }
+  .funciones-lista { list-style: none; padding: 0; margin: 0; }
+  .funciones-lista li {
+    font-size: 0.86rem;
+    color: rgba(255,255,255,0.85);
+    padding: 4px 0;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .funciones-lista li::before { content: "✓"; color: var(--udes-oro); font-weight: 700; flex-shrink: 0; }
+  .nota-login {
+    margin-top: 18px;
+    background: rgba(201,162,39,0.12);
+    border-left: 3px solid var(--udes-oro);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.80);
+    line-height: 1.5;
+  }
+
   .login-box {
-    max-width: 380px;
-    margin: 60px auto;
+    flex: 0 0 320px;
     background: var(--blanco);
     border-radius: 12px;
     padding: 32px;
@@ -64,6 +137,12 @@
   }
   .login-box button:hover { background: var(--udes-navy-osc); }
   #loginError { color: var(--rojo); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+
+  @media (max-width: 680px) {
+    .login-wrapper { flex-direction: column; margin: 24px auto; }
+    .login-box { flex: 1 1 auto; width: 100%; }
+    .login-instrucciones { flex: 1 1 auto; width: 100%; }
+  }
 
   /* Selector de módulo (solo admin) */
   .tabs-modulo { display: flex; gap: 8px; margin-bottom: 16px; }
@@ -187,7 +266,7 @@
     .solo-impresion p#infoImpresion { margin: 12px 0 0; font-size: 0.78rem; color: var(--texto-suave); }
 
     #udesHeaderMount, .barra-sesion, .btn-editar, .btn-nuevo, .btn-imprimir, .filtros, .form-edicion,
-    .caja-nuevo-proyecto, .fila-seguimiento, .tabs-modulo, footer, .login-box { display: none !important; }
+    .caja-nuevo-proyecto, .fila-seguimiento, .tabs-modulo, footer, .login-wrapper { display: none !important; }
 
     body { background: white; margin: 0; }
     main { max-width: none; padding: 0; margin: 0; }
@@ -224,24 +303,71 @@
 <main>
 
   <!-- LOGIN -->
-  <div id="vistaLogin" class="login-box">
-    <h2>Ingresar</h2>
-    <label for="inputUsuario">Usuario</label>
-    <select id="inputUsuario">
-      <option value="">Selecciona una opción</option>
-      <option value="admin">Administración (consolidado)</option>
-      <option value="infraestructura">Infraestructura Física</option>
-      <option value="tecnologia">Infraestructura Tecnológica</option>
-      <option value="__otro__">Soy responsable de un proyecto</option>
-    </select>
-    <div id="cajaUsuarioPersonalizado" class="oculto">
-      <label for="inputUsuarioPersonalizado">Tu usuario asignado</label>
-      <input id="inputUsuarioPersonalizado" type="text" placeholder="usuario">
+  <div id="vistaLogin" class="login-wrapper">
+
+    <!-- Panel de instrucciones -->
+    <div class="login-instrucciones">
+      <h2>Plan de Infraestructura UDES 2024–2028</h2>
+      <p class="subtitulo">Herramienta de seguimiento y gestión — Física y Tecnológica</p>
+
+      <h3>¿Qué es esta herramienta?</h3>
+      <p>Panel institucional para registrar, monitorear y actualizar el estado de avance de los proyectos de infraestructura física y tecnológica de los campus Bucaramanga, Cúcuta y Valledupar.</p>
+
+      <h3>Perfiles de acceso</h3>
+      <ul class="roles-lista">
+        <li>
+          <span class="rol-icono">🔑</span>
+          <div><strong>Administración</strong>Ve y gestiona todos los proyectos de ambos módulos en los tres campus.</div>
+        </li>
+        <li>
+          <span class="rol-icono">🏗️</span>
+          <div><strong>Infraestructura Física</strong>Acceso completo a los proyectos del módulo físico (obras, movilidad, equipamiento).</div>
+        </li>
+        <li>
+          <span class="rol-icono">💻</span>
+          <div><strong>Infraestructura Tecnológica</strong>Acceso completo a los proyectos del módulo tecnológico (TIC, plataformas, IA).</div>
+        </li>
+        <li>
+          <span class="rol-icono">👤</span>
+          <div><strong>Responsable de proyecto</strong>Ingresa con tu usuario personal y actualiza solo los proyectos que tienes asignados.</div>
+        </li>
+      </ul>
+
+      <h3>¿Qué puedes hacer?</h3>
+      <ul class="funciones-lista">
+        <li>Consultar el estado y avance de cada proyecto</li>
+        <li>Filtrar por campus, programa / línea TI y estado</li>
+        <li>Registrar hitos de seguimiento y evidencias</li>
+        <li>Actualizar el porcentaje de avance y responsable</li>
+        <li>Ver la matriz consolidada por categoría y campus</li>
+      </ul>
+
+      <div class="nota-login">
+        <strong>Primera vez:</strong> Solicita tu usuario y clave al equipo de Planeación Institucional. Las claves por defecto deben cambiarse en la hoja <em>Usuarios</em> del sistema.
+      </div>
     </div>
-    <label for="inputClave">Clave</label>
-    <input id="inputClave" type="password">
-    <button id="btnIngresar">Ingresar</button>
-    <div id="loginError"></div>
+
+    <!-- Formulario de login -->
+    <div class="login-box">
+      <h2>Ingresar</h2>
+      <label for="inputUsuario">Perfil</label>
+      <select id="inputUsuario">
+        <option value="">Selecciona una opción</option>
+        <option value="admin">Administración (consolidado)</option>
+        <option value="infraestructura">Infraestructura Física</option>
+        <option value="tecnologia">Infraestructura Tecnológica</option>
+        <option value="__otro__">Soy responsable de un proyecto</option>
+      </select>
+      <div id="cajaUsuarioPersonalizado" class="oculto">
+        <label for="inputUsuarioPersonalizado">Tu usuario asignado</label>
+        <input id="inputUsuarioPersonalizado" type="text" placeholder="usuario">
+      </div>
+      <label for="inputClave">Clave</label>
+      <input id="inputClave" type="password">
+      <button id="btnIngresar">Ingresar</button>
+      <div id="loginError"></div>
+    </div>
+
   </div>
 
   <!-- VISTA DE UN SOLO MÓDULO (responsable de campus o rol tecnología) -->
