@@ -120,7 +120,8 @@
   }
 
   .login-box {
-    flex: 0 0 320px;
+    flex: 0 1 320px;
+    min-width: 260px;
     background: var(--blanco);
     border-radius: 12px;
     padding: 32px;
@@ -138,10 +139,22 @@
   .login-box button:hover { background: var(--udes-navy-osc); }
   #loginError { color: var(--rojo); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
 
+  /* Tablet estrecha (680–860 px) */
+  @media (max-width: 860px) {
+    .login-wrapper { padding: 0 16px; }
+  }
+
+  /* Móvil (<680 px) */
   @media (max-width: 680px) {
-    .login-wrapper { flex-direction: column; margin: 24px auto; }
-    .login-box { flex: 1 1 auto; width: 100%; }
+    .login-wrapper { flex-direction: column; margin: 20px auto; padding: 0 12px; }
+    .login-box { flex: 1 1 auto; width: 100%; min-width: 0; }
     .login-instrucciones { flex: 1 1 auto; width: 100%; }
+    main { padding: 12px; }
+    .marca-wrap { padding: 0 12px; }
+    .filtros { flex-direction: column; }
+    .filtros select, .filtros input { width: 100%; }
+    .resumen-grid { grid-template-columns: repeat(2, 1fr); }
+    .acciones-tabla { flex-direction: column; align-items: flex-start; gap: 8px; }
   }
 
   /* Selector de módulo (solo admin) */
@@ -167,10 +180,11 @@
 
   section.panel {
     background: var(--blanco); border-radius: 10px; padding: 20px; margin-bottom: 22px; border: 1px solid var(--gris-borde);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
   }
   section.panel h3 { margin-top: 0; color: var(--udes-navy-osc); font-size: 1.05rem; }
 
-  table.tabla-proyectos { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  table.tabla-proyectos { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 560px; }
   table.tabla-proyectos th, table.tabla-proyectos td {
     text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gris-borde); vertical-align: top;
   }
