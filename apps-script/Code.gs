@@ -114,6 +114,104 @@ const PROYECTOS_BASE = [
   [19, 'Fachada Institucional', 'Valledupar', 'Adecuación arquitectónica y mejoramiento de accesos.', 'Identidad e imagen institucional', 'Sin iniciar', 0],
 ];
 
+// ─── PROYECTOS BASE: Infraestructura Tecnológica ──────────────────────────────
+// Campos por fila: [N°, Proyecto, Línea, Campus, Descripción, Costo estimado,
+//                   Fuente de financiación, Estado inicial, Prioridad, % avance]
+const PROYECTOS_BASE_TI = [
+
+  // LÍNEA 1: Infraestructura de procesamiento y almacenamiento
+  [1, 'Infraestructura de servidores (Moodle + DR)',
+    'Infraestructura de procesamiento y almacenamiento', 'Todos',
+    'Adquisición e implementación de infraestructura de servidores para soportar Moodle, plataformas institucionales y el plan de recuperación de desastres (DR) de la UDES.',
+    4000000000, 'Gestión TIC / Plan Estratégico', 'Sin iniciar', 'Alta', 0],
+  [2, 'Dotación tecnológica laboratorios clínicos y simulación (VAL)',
+    'Infraestructura de procesamiento y almacenamiento', 'Valledupar',
+    'Adquisición de equipos tecnológicos para prácticas de laboratorio en ciencias de la salud, incluyendo simuladores clínicos y dispositivos especializados.',
+    296529640, 'Facultad de Ciencias Médicas y de la Salud', 'Sin iniciar', 'Alta', 0],
+
+  // LÍNEA 2: Plataformas institucionales
+  [3, 'Optimización plataformas virtuales y Moodle (INIC-A)',
+    'Plataformas institucionales', 'Todos',
+    'Optimización y modernización de las plataformas de aprendizaje virtual Moodle y sistemas de evaluación en línea, unificando versiones y mejorando la experiencia de usuario.',
+    80000000, 'PDI - Transformación Curricular / Política ITD', 'Sin iniciar', 'Alta', 0],
+  [4, 'Ruta institucional de virtualización y plataformas (INIC-B)',
+    'Plataformas institucionales', 'Todos',
+    'Fortalecimiento de la ruta institucional de virtualización mediante integración de plataformas tecnológicas para el aprendizaje a distancia y semipresencial.',
+    130000000, 'PDI - Transformación Curricular / Política de Enseñanza', 'Sin iniciar', 'Alta', 0],
+  [5, 'Ajuste modelo de evaluación profesoral MEIPU (INIC-E)',
+    'Plataformas institucionales', 'Todos',
+    'Módulo de software para digitalizar el Modelo de Evaluación Integral de la Práctica de Enseñanza (MEIPU), integrando retroalimentación de calidad docente.',
+    76000000, 'PDI - Transformación Curricular / Política de Enseñanza', 'Sin iniciar', 'Media', 0],
+  [6, 'Plan prospectivo de infraestructura tecnológica del programa (CUC)',
+    'Plataformas institucionales', 'Cúcuta',
+    'Fortalecimiento de infraestructura tecnológica al servicio de los programas del campus Cúcuta, incluyendo plataformas digitales y sistemas de información.',
+    713003004, 'Facultad de Ciencias Médicas y de la Salud', 'Sin iniciar', 'Alta', 0],
+
+  // LÍNEA 3: Servicios tecnológicos
+  [7, 'Digitalización y automatización de procesos institucionales (INIC-F)',
+    'Servicios tecnológicos', 'Todos',
+    'Digitalización y automatización de procesos académico-administrativos para mejorar la eficiencia institucional mediante flujos de trabajo electrónicos y firma digital.',
+    240000000, 'PDI - Transformación Curricular / Política ITD', 'Sin iniciar', 'Alta', 0],
+  [8, 'Vigilancia tecnológica e innovación disruptiva institucional',
+    'Servicios tecnológicos', 'Todos',
+    'Implementación de proceso permanente de vigilancia tecnológica para identificar tendencias disruptivas y orientar la toma de decisiones estratégicas en TI.',
+    216000000, 'Política de Innovación, Transformación y Disrupción', 'Sin iniciar', 'Alta', 0],
+  [9, 'Sistema de proctoring para evaluaciones en línea (VAL)',
+    'Servicios tecnológicos', 'Valledupar',
+    'Incorporación de herramientas de proctoring para garantizar la integridad y vigilancia en evaluaciones a distancia del campus Valledupar.',
+    50000000, 'Facultad de Ingenierías', 'Sin iniciar', 'Alta', 0],
+
+  // LÍNEA 4: Seguridad de la infraestructura tecnológica
+  [10, 'Protección de datos y privacidad en IA institucional',
+    'Seguridad de la infraestructura tecnológica', 'Todos',
+    'Garantizar el cumplimiento normativo en protección de datos en el uso de IA institucional, incluyendo auditorías de sesgos algorítmicos y marcos éticos.',
+    560000000, 'Política de Inteligencia Artificial', 'Sin iniciar', 'Alta', 0],
+  [11, 'Gobierno y seguridad de datos institucionales',
+    'Seguridad de la infraestructura tecnológica', 'Todos',
+    'Marcos de seguridad de la información, gestión de riesgos y protocolos de privacidad para el cumplimiento normativo en el tratamiento de datos institucionales.',
+    70000000, 'Política de Gobierno de Datos', 'Sin iniciar', 'Alta', 0],
+
+  // LÍNEA 5: Analítica, datos e IA
+  [12, 'Herramientas emergentes IA y simuladores en aprendizaje (INIC-G)',
+    'Analítica, datos e IA', 'Todos',
+    'Incorporación de tecnologías emergentes (IA, simuladores, realidad virtual/aumentada) en los procesos de enseñanza-aprendizaje con pilotos en programas seleccionados.',
+    480000000, 'PDI - Transformación Curricular / Política ITD', 'Sin iniciar', 'Alta', 0],
+  [13, 'Modelo de alertas curriculares y permanencia estudiantil (INIC-C)',
+    'Analítica, datos e IA', 'Todos',
+    'Módulo de seguimiento y alertas curriculares para detección temprana de riesgo de deserción y apoyo personalizado a estudiantes con bajo rendimiento académico.',
+    130000000, 'PDI - Transformación Curricular / Política ITD', 'Sin iniciar', 'Media', 0],
+  [14, 'Seguimiento resultados de aprendizaje CMIRA (INIC-D)',
+    'Analítica, datos e IA', 'Todos',
+    'Módulo de seguimiento de resultados dentro del Marco Institucional de Resultados de Aprendizaje (CMIRA), integrado al sistema de evaluación académica.',
+    0, 'PDI - Transformación Curricular / Política de Enseñanza', 'Sin iniciar', 'Media', 0],
+  [15, 'Arquitectura e integración de datos institucionales (ETL)',
+    'Analítica, datos e IA', 'Todos',
+    'Unificación de arquitectura de datos, integración de sistemas heterogéneos y reducción de redundancia mediante pipelines ETL y repositorio centralizado.',
+    250000000, 'Política de Gobierno de Datos', 'Sin iniciar', 'Alta', 0],
+  [16, 'Sistema de analítica predictiva para retención estudiantil',
+    'Analítica, datos e IA', 'Todos',
+    'Minería de datos y analítica predictiva sobre comportamiento académico para identificar estudiantes en riesgo y activar estrategias personalizadas de acompañamiento.',
+    120000000, 'Vicerrectoría de Enseñanza', 'Sin iniciar', 'Alta', 0],
+
+  // LÍNEA 6: Infraestructura tecnológica para docencia e investigación
+  [17, 'Renovación progresiva de equipos de laboratorio institucional (INIC-H)',
+    'Infraestructura tecnológica para docencia e investigación', 'Todos',
+    'Renovación y modernización progresiva de los equipos de laboratorio utilizados en formación práctica, garantizando condiciones técnicas actualizadas en los tres campus.',
+    3600000000, 'PDI - Transformación Curricular', 'Sin iniciar', 'Alta', 0],
+  [18, 'Actualización recursos digitales y cursos virtuales portables (BUC)',
+    'Infraestructura tecnológica para docencia e investigación', 'Bucaramanga',
+    'Actualización de cursos virtuales portables con accesibilidad y subtitulación, y nuevos recursos digitales para la Facultad de Ciencias Sociales de Bucaramanga.',
+    1625249304, 'Facultad de Ciencias Sociales', 'Sin iniciar', 'Alta', 0],
+  [19, 'Fortalecimiento bibliográfico y bases de datos académicas (CUC)',
+    'Infraestructura tecnológica para docencia e investigación', 'Cúcuta',
+    'Adquisición y actualización de recursos bibliográficos y bases de datos digitales para la comunidad académica del campus Cúcuta.',
+    1257926530, 'Facultad de Ciencias Médicas y de la Salud', 'Sin iniciar', 'Alta', 0],
+  [20, 'Actualización HW/SW e informática especializada (BUC)',
+    'Infraestructura tecnológica para docencia e investigación', 'Bucaramanga',
+    'Actualización de recursos informáticos (hardware y software especializado) para laboratorios de computación de programas académicos de FEAC.',
+    278128893, 'Facultad de Ciencias Económicas, Administrativas y Contables', 'Sin iniciar', 'Alta', 0],
+];
+
 // Cuentas de nivel institucional (setup() las agrega si faltan, sin duplicar).
 // Las cuentas individuales de responsable_proyecto se agregan manualmente en el Sheet.
 const USUARIOS_BASE = [
@@ -178,6 +276,26 @@ function setup() {
   const proyectosTiSheet = getOrCreateSheet_(ss, SHEET_PROYECTOS_TI);
   if (proyectosTiSheet.getLastRow() === 0) {
     proyectosTiSheet.appendRow(PROYECTOS_TI_HEADERS);
+    const nowTi = new Date();
+    PROYECTOS_BASE_TI.forEach(function (p) {
+      proyectosTiSheet.appendRow([
+        p[0],          // N°
+        p[1],          // Proyecto
+        p[2],          // Línea
+        p[3],          // Campus
+        p[4],          // Descripción
+        p[5],          // Costo estimado
+        p[6],          // Fuente de financiación
+        '',            // Fecha inicio
+        '',            // Fecha fin
+        'Formulación', // Fase actual
+        '',            // Responsable
+        p[7],          // Estado
+        p[8],          // Prioridad
+        p[9],          // % avance
+        nowTi,         // Última actualización
+      ]);
+    });
     aplicarValidaciones_(proyectosTiSheet);
     proyectosTiSheet.setFrozenRows(1);
     proyectosTiSheet.autoResizeColumns(1, PROYECTOS_TI_HEADERS.length);
@@ -869,4 +987,62 @@ function eliminarEvidencia_(body) {
 
   sheet.deleteRow(filaEncontrada + 1);
   return { ok: true };
+}
+
+/**
+ * Restablece la hoja ProyectosTI a los 20 proyectos base de infraestructura tecnológica.
+ * ADVERTENCIA: elimina TODAS las filas de datos existentes en ProyectosTI.
+ * Usar solo en desarrollo / testing — no ejecutar en producción con datos reales.
+ */
+function resetearTI() {
+  const ss = getSs_();
+  const sheet = ss.getSheetByName(SHEET_PROYECTOS_TI);
+  if (!sheet) {
+    Logger.log('[resetearTI] Hoja "' + SHEET_PROYECTOS_TI + '" no encontrada.');
+    return;
+  }
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    sheet.deleteRows(2, lastRow - 1);
+  }
+  const now = new Date();
+  PROYECTOS_BASE_TI.forEach(function (p) {
+    sheet.appendRow([
+      p[0], p[1], p[2], p[3], p[4],
+      p[5], p[6],
+      '', '', 'Formulación',
+      '', p[7], p[8], p[9], now,
+    ]);
+  });
+  aplicarValidaciones_(sheet);
+  Logger.log('[resetearTI] Hoja reiniciada con ' + PROYECTOS_BASE_TI.length + ' proyectos base TI.');
+}
+
+/**
+ * Restablece la hoja Proyectos (física) a los 19 proyectos base del Plan Maestro.
+ * ADVERTENCIA: elimina TODAS las filas de datos existentes en Proyectos.
+ * Usar solo en desarrollo / testing — no ejecutar en producción con datos reales.
+ */
+function resetearFisica() {
+  const ss = getSs_();
+  const sheet = ss.getSheetByName(SHEET_PROYECTOS);
+  if (!sheet) {
+    Logger.log('[resetearFisica] Hoja "' + SHEET_PROYECTOS + '" no encontrada.');
+    return;
+  }
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    sheet.deleteRows(2, lastRow - 1);
+  }
+  const now = new Date();
+  PROYECTOS_BASE.forEach(function (p) {
+    sheet.appendRow([
+      p[0], p[1], p[2], p[3], p[4],
+      '', '',
+      '', '', '',
+      '', p[5], '', p[6], now,
+    ]);
+  });
+  aplicarValidaciones_(sheet);
+  Logger.log('[resetearFisica] Hoja reiniciada con ' + PROYECTOS_BASE.length + ' proyectos base físicos.');
 }
