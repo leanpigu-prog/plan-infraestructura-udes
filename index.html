@@ -103,9 +103,11 @@
   .badge.ejecutado { background: var(--verde-ok); }
   .badge.atrasado { background: var(--rojo); }
 
-  .badge.prioridad-alta { background: var(--rojo); }
-  .badge.prioridad-media { background: var(--udes-oro); color: var(--udes-navy-osc); }
-  .badge.prioridad-baja { background: var(--gris-neutro); }
+  .badge.prioridad-critico { background: #014C97; }
+  .badge.prioridad-alto { background: #3F7CBB; }
+  .badge.prioridad-medio { background: #8DB1D8; color: var(--udes-navy-osc); }
+  .badge.prioridad-largo { background: var(--udes-oro); color: var(--udes-navy-osc); }
+  .badge.prioridad-sin { background: var(--gris-neutro); }
 
   .barra-avance { background: var(--gris-borde); border-radius: 6px; height: 8px; width: 100px; overflow: hidden; }
   .barra-avance-fill { background: var(--udes-navy); height: 100%; }
@@ -151,9 +153,32 @@
   .btn-eliminar-mini:hover { background: var(--rojo); color: white; }
   .hito-estado-select { font-size: 0.72rem; padding: 3px 6px; border-radius: 5px; border: 1px solid var(--gris-borde); }
 
-  select#filtroCampus, select#filtroPrograma, select#filtroEstado {
+  select#filtroCampus, select#filtroPrograma, select#filtroEstado, select#filtroPrioridad {
     padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gris-borde); font-size: 0.85rem;
   }
+
+  .tab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; margin: 14px 0; }
+  .tab-card { background: #fff; border: 1px solid var(--gris-borde); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; min-width: 0; }
+  .tab-grid .tab-card { margin-bottom: 0; }
+  .tab-card h4 { margin: 0 0 8px; font-size: 0.85rem; color: var(--udes-navy); }
+  .tab-card h4 small { font-weight: normal; color: var(--texto-suave); }
+  .tab-row { display: grid; grid-template-columns: minmax(90px, 34%) 1fr minmax(96px, 26%); gap: 8px; align-items: center; font-size: 0.78rem; padding: 2px 0; }
+  .tab-lab { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tab-track { background: #EEF3F9; height: 12px; border-radius: 2px; overflow: hidden; }
+  .tab-fill { height: 100%; }
+  .tab-val { text-align: right; font-variant-numeric: tabular-nums; }
+  .tab-val span { color: var(--texto-suave); font-size: 0.7rem; }
+  .tab-anios { display: flex; gap: 8px; align-items: flex-end; height: 150px; font-size: 0.7rem; text-align: center; }
+  .tab-anio { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+  .tab-anio-bar { background: var(--udes-navy); border-radius: 3px 3px 0 0; min-height: 2px; }
+  .tab-anio-v { color: var(--texto-suave); font-size: 0.65rem; }
+  .g-scroll { max-height: 420px; overflow: auto; }
+  .g-cab, .g-fila { display: grid; grid-template-columns: 240px 1fr; align-items: center; font-size: 0.72rem; }
+  .g-anios { display: grid; grid-template-columns: repeat(9, 1fr); text-align: center; font-weight: 600; color: var(--udes-navy); }
+  .g-fila { height: 20px; border-bottom: 1px dotted var(--gris-borde); }
+  .g-lab { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 6px; }
+  .g-pista { position: relative; height: 100%; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(11.111% - 1px), var(--gris-borde) calc(11.111% - 1px), var(--gris-borde) 11.111%); }
+  .g-barra { position: absolute; top: 4px; height: 12px; border-radius: 2px; }
   .filtros { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 
   .fila-atrasado { background: #FDEEEC; }
@@ -247,6 +272,7 @@
   <!-- VISTA DE UN SOLO MÓDULO (responsable de campus o rol tecnología) -->
   <div id="vistaCampus" class="oculto">
     <div class="resumen-grid" id="resumenCampus"></div>
+    <section class="panel"><h3>Tablero PDIFyT</h3><div id="tableroCampus"></div></section>
     <section class="panel">
       <div class="acciones-tabla">
         <h3 id="tituloProyectosCampus" style="margin:0">Proyectos de mi campus</h3>
@@ -256,7 +282,7 @@
       <table class="tabla-proyectos" id="tablaCampus">
         <thead>
           <tr>
-            <th>N°</th><th>Proyecto</th><th id="thModuloCampus" class="oculto">Módulo</th><th id="thCategoriaCampus">Programa</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
+            <th>N°</th><th>Proyecto</th><th id="thModuloCampus" class="oculto">Módulo</th><th id="thCategoriaCampus">Pilar PDI</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyCampus"></tbody>
@@ -268,6 +294,7 @@
   <div id="vistaAdmin" class="oculto">
     <div class="tabs-modulo" id="tabsModulo"></div>
     <div class="resumen-grid" id="resumenAdmin"></div>
+    <section class="panel"><h3>Tablero PDIFyT</h3><div id="tableroAdmin"></div></section>
 
     <section class="panel">
       <h3 id="tituloMatriz">Proyectos por programa y campus</h3>
@@ -287,13 +314,14 @@
       <div id="cajaNuevoAdmin" class="caja-nuevo-proyecto oculto"></div>
       <div class="filtros">
         <select id="filtroCampus"><option value="">Todos los campus</option></select>
-        <select id="filtroPrograma"><option value="">Todos los programas</option></select>
+        <select id="filtroPrograma"><option value="">Todos los pilares</option></select>
+        <select id="filtroPrioridad"><option value="">Todas las prioridades</option></select>
         <select id="filtroEstado"><option value="">Todos los estados</option></select>
       </div>
       <table class="tabla-proyectos" id="tablaAdmin">
         <thead>
           <tr>
-            <th>N°</th><th>Proyecto</th><th>Campus</th><th id="thCategoriaAdmin">Programa</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
+            <th>N°</th><th>Proyecto</th><th>Campus</th><th id="thCategoriaAdmin">Pilar PDI</th><th>Estado</th><th>Prioridad</th><th>Avance</th><th></th>
           </tr>
         </thead>
         <tbody id="tbodyAdmin"></tbody>
@@ -322,42 +350,33 @@ let sesionActual = null;
 let proyectosActuales = [];
 
 const ESTADOS = ['Sin iniciar', 'En desarrollo', 'Ejecutado', 'Atrasado'];
-const PRIORIDADES = ['Alta', 'Media', 'Baja'];
+const PRIORIDADES = ['Crítico', 'Alto', 'Medio', 'Largo Plazo'];
+const CRONOGRAMAS = ['Al día', 'Con retraso', 'Pendiente de inicio', 'Finalizado'];
 const HITO_ESTADOS = ['Pendiente', 'Cumplido', 'Atrasado'];
 const EVIDENCIA_TIPOS = ['Acta', 'Informe', 'Fotografía', 'Contrato/Convenio', 'Soporte de pago', 'Documento técnico', 'Otro'];
 
-const PROGRAMAS = [
-  'Movilidad y accesibilidad',
-  'Expansión académica',
-  'Equipamiento cultural y deportivo',
-  'Bienestar y vida universitaria',
-  'Identidad e imagen institucional',
-  'Ciencia, tecnología e innovación',
-  'Reserva de suelo',
-];
-const LINEAS_TI = [
-  'Infraestructura de procesamiento y almacenamiento',
-  'Plataformas institucionales',
-  'Servicios tecnológicos',
-  'Seguridad de la infraestructura tecnológica',
-  'Analítica, datos e IA',
-  'Infraestructura tecnológica para docencia e investigación',
+const PILARES = [
+  'P1. Experiencia en el aula',
+  'P2. Ambiente tecnológico',
+  'P3. Entorno emprendedor',
+  'P4. Gobernanza para el buen gobierno',
+  'P5. Impacto de la investigación',
+  'P6. Apropiación social',
 ];
 const CAMPUSES = ['Bucaramanga', 'Cúcuta', 'Valledupar'];
-const NUMERO_MAXIMO_PLAN_MAESTRO = 19;
 
 const MODULOS_CONFIG = {
   fisica: {
     label: 'Infraestructura Física',
-    categoriaLabel: 'Programa',
-    categoriaLabelTodos: 'Todos los programas',
-    categorias: PROGRAMAS,
+    categoriaLabel: 'Pilar PDI',
+    categoriaLabelTodos: 'Todos los pilares',
+    categorias: PILARES,
   },
   tecnologica: {
     label: 'Infraestructura Tecnológica',
-    categoriaLabel: 'Línea',
-    categoriaLabelTodos: 'Todas las líneas',
-    categorias: LINEAS_TI,
+    categoriaLabel: 'Pilar PDI',
+    categoriaLabelTodos: 'Todos los pilares',
+    categorias: PILARES,
   },
 };
 let moduloActivo = 'fisica';
@@ -367,8 +386,8 @@ function claseBadgeEstado(estado) {
   return map[estado] || 'sin-iniciar';
 }
 function claseBadgePrioridad(p) {
-  const map = { 'Alta': 'prioridad-alta', 'Media': 'prioridad-media', 'Baja': 'prioridad-baja' };
-  return map[p] || 'prioridad-baja';
+  const map = { 'Crítico': 'prioridad-critico', 'Alto': 'prioridad-alto', 'Medio': 'prioridad-medio', 'Largo Plazo': 'prioridad-largo' };
+  return map[p] || 'prioridad-sin';
 }
 function claseBadgeHito(estado) {
   const map = { 'Pendiente': 'sin-iniciar', 'Cumplido': 'ejecutado', 'Atrasado': 'atrasado' };
@@ -514,7 +533,9 @@ function resetFiltros() {
   const selCampus = document.getElementById('filtroCampus');
   const selPrograma = document.getElementById('filtroPrograma');
   const selEstado = document.getElementById('filtroEstado');
-  [selCampus, selPrograma, selEstado].forEach(function (s) { s.innerHTML = ''; delete s.dataset.poblado; });
+  const selPrioridad = document.getElementById('filtroPrioridad');
+  [selCampus, selPrograma, selEstado, selPrioridad].forEach(function (s) { s.innerHTML = ''; delete s.dataset.poblado; });
+  selPrioridad.appendChild(new Option('Todas las prioridades', ''));
   selCampus.appendChild(new Option('Todos los campus', ''));
   selPrograma.appendChild(new Option(cfg.categoriaLabelTodos, ''));
   selEstado.appendChild(new Option('Todos los estados', ''));
@@ -541,6 +562,7 @@ function renderCampus() {
     <div class="tarjeta"><div class="valor">${atrasados}</div><div class="etiqueta">Atrasados</div></div>
   `;
 
+  renderTablero('tableroCampus');
   const tbody = document.getElementById('tbodyCampus');
   tbody.innerHTML = '';
   const mostrarModulo = sesionActual.rol === 'responsable_proyecto';
@@ -552,7 +574,7 @@ function renderAdmin() {
   renderTabsModulo();
   const cfg = MODULOS_CONFIG[moduloActivo];
   document.getElementById('thCategoriaAdmin').textContent = cfg.categoriaLabel;
-  document.getElementById('tituloMatriz').textContent = `Proyectos por ${cfg.categoriaLabel.toLowerCase()} y campus`;
+  document.getElementById('tituloMatriz').textContent = `Proyectos por ${cfg.categoriaLabel} y campus`;
 
   const total = proyectosActuales.length;
   const ejecutados = proyectosActuales.filter(p => p.Estado === 'Ejecutado').length;
@@ -565,9 +587,10 @@ function renderAdmin() {
     <div class="tarjeta"><div class="valor">${ejecutados}</div><div class="etiqueta">Ejecutados</div></div>
     <div class="tarjeta"><div class="valor">${avancePromedio}%</div><div class="etiqueta">Avance promedio</div></div>
     <div class="tarjeta"><div class="valor">${atrasados}</div><div class="etiqueta">Atrasados</div></div>
-    <div class="tarjeta"><div class="valor">$${costoTotal.toLocaleString('es-CO')}</div><div class="etiqueta">Costo estimado total</div></div>
+    <div class="tarjeta"><div class="valor">${fmtMM(costoTotal)}</div><div class="etiqueta">Costo estimado total</div></div>
   `;
 
+  renderTablero('tableroAdmin');
   renderMatrizProgramaCampus();
   renderAlertas();
   poblarFiltros();
@@ -617,13 +640,15 @@ function poblarFiltros() {
   const selCampus = document.getElementById('filtroCampus');
   const selPrograma = document.getElementById('filtroPrograma');
   const selEstado = document.getElementById('filtroEstado');
+  const selPrioridad = document.getElementById('filtroPrioridad');
 
   if (selCampus.dataset.poblado) return;
+  PRIORIDADES.forEach(e => selPrioridad.appendChild(new Option(e, e)));
   campuses.forEach(c => selCampus.appendChild(new Option(c, c)));
   categorias.forEach(c => selPrograma.appendChild(new Option(c, c)));
   ESTADOS.forEach(e => selEstado.appendChild(new Option(e, e)));
 
-  [selCampus, selPrograma, selEstado].forEach(s => s.addEventListener('change', renderTablaAdmin));
+  [selCampus, selPrograma, selEstado, selPrioridad].forEach(s => s.addEventListener('change', renderTablaAdmin));
   selCampus.dataset.poblado = '1';
 }
 
@@ -632,11 +657,13 @@ function renderTablaAdmin() {
   const fCampus = document.getElementById('filtroCampus').value;
   const fPrograma = document.getElementById('filtroPrograma').value;
   const fEstado = document.getElementById('filtroEstado').value;
+  const fPrioridad = document.getElementById('filtroPrioridad').value;
 
   const filtrados = proyectosActuales.filter(p =>
     (!fCampus || p.Campus === fCampus) &&
     (!fPrograma || p[cfg.categoriaLabel] === fPrograma) &&
-    (!fEstado || p.Estado === fEstado)
+    (!fEstado || p.Estado === fEstado) &&
+    (!fPrioridad || p.Prioridad === fPrioridad)
   );
 
   const tbody = document.getElementById('tbodyAdmin');
@@ -667,13 +694,17 @@ function filaProyecto(p, opts) {
   const cfg = MODULOS_CONFIG[modP];
   const categoria = p[cfg.categoriaLabel];
   const avance = Number(p['% avance']) || 0;
-  const mostrarBadgeOrigen = modP === 'fisica';
-  const esPlanMaestro = mostrarBadgeOrigen && Number(p['N°']) <= NUMERO_MAXIMO_PLAN_MAESTRO;
+  const origen = p.Origen || '';
+  const clasif = p['Clasificación'] || '';
+  const costoTxt = Number(p['Costo estimado']) ? fmtMM(Number(p['Costo estimado'])) : '';
   const puedeGestionar = sesionActual.rol !== 'responsable_proyecto';
   tr.innerHTML = `
     <td>${p['N°']}</td>
     <td>${p.Proyecto}<div style="font-size:0.72rem;color:var(--texto-suave)">${p.Descripción || ''}</div>
-      ${mostrarBadgeOrigen ? `<span class="badge-origen ${esPlanMaestro ? '' : 'nuevo'}">${esPlanMaestro ? 'Plan Maestro' : 'Nuevo'}</span>` : ''}
+      ${clasif ? `<span class="badge-origen">${clasif}</span>` : ''}
+      ${origen ? `<span class="badge-origen ${origen === 'Nuevo' ? 'nuevo' : ''}">${origen}</span>` : ''}
+      ${costoTxt ? `<span class="badge-origen">${costoTxt}</span>` : ''}
+      ${p['Resultado evaluación'] && p['Resultado evaluación'] !== 'Aprobado' ? `<span class="badge-origen nuevo">${p['Resultado evaluación']}</span>` : ''}
     </td>
     ${mostrarModulo ? `<td>${cfg.label}</td>` : ''}
     ${mostrarCampus ? `<td>${p.Campus || '–'}</td>` : ''}
@@ -749,6 +780,13 @@ function abrirEdicion(filaProyectoTr, p) {
         <select id="edPrioridad"><option value="">–</option>${PRIORIDADES.map(pr => `<option ${pr === p.Prioridad ? 'selected' : ''}>${pr}</option>`).join('')}</select>
       </div>
       <div><label>% avance</label><input type="number" min="0" max="100" id="edAvance" value="${p['% avance'] || 0}"></div>
+      <div><label>Cumplimiento de cronograma</label>
+        <select id="edCronograma"><option value="">–</option>${CRONOGRAMAS.map(c => `<option ${c === p['Cumplimiento cronograma'] ? 'selected' : ''}>${c}</option>`).join('')}</select>
+      </div>
+      <div><label>Avance físico</label><input type="text" id="edAvFisico" value="${p['Avance físico'] || ''}" placeholder="Ej. Obra al 30 %"></div>
+      <div><label>Avance financiero</label><input type="text" id="edAvFinanciero" value="${p['Avance financiero'] || ''}" placeholder="Ej. $1.200 M ejecutados"></div>
+      <div style="grid-column:1/-1"><label>Riesgos</label><textarea id="edRiesgos" rows="2">${p.Riesgos || ''}</textarea></div>
+      <div style="grid-column:1/-1"><label>Acciones</label><textarea id="edAcciones" rows="2">${p.Acciones || ''}</textarea></div>
       <div style="grid-column:1/-1"><label>Comentario de seguimiento</label><textarea id="edComentario" rows="2" placeholder="Novedad de esta actualización..."></textarea></div>
       <div class="acciones">
         <button class="btn-cancelar" id="edCancelar">Cancelar</button>
@@ -790,6 +828,11 @@ async function guardarEdicion(p, td, trEdicion) {
     estado: td.querySelector('#edEstado').value,
     prioridad: td.querySelector('#edPrioridad').value,
     pctAvance: td.querySelector('#edAvance').value,
+    cumplimientoCronograma: td.querySelector('#edCronograma').value,
+    avanceFisico: td.querySelector('#edAvFisico').value,
+    avanceFinanciero: td.querySelector('#edAvFinanciero').value,
+    riesgos: td.querySelector('#edRiesgos').value,
+    acciones: td.querySelector('#edAcciones').value,
     comentario: td.querySelector('#edComentario').value,
   };
 
@@ -1055,6 +1098,107 @@ async function guardarNuevoProyecto(contenedorId, mostrarCampus) {
     msg.textContent = 'Error de conexión: ' + err;
     msg.className = 'mensaje-error';
   }
+}
+
+/* -------- Tablero PDIFyT (base aprobada): KPIs, distribuciones, Gantt 2027-2035 y ranking de inversión -------- */
+const ANIOS_TABLERO = [2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035];
+const COLOR_PRIORIDAD = { 'Crítico': '#014C97', 'Alto': '#3F7CBB', 'Medio': '#8DB1D8', 'Largo Plazo': '#CEA284' };
+
+function fmtMM(v) {
+  if (!v) return '$0';
+  if (v >= 1e9) return '$' + (v / 1e9).toLocaleString('es-CO', { maximumFractionDigits: 1 }) + ' MM';
+  return '$' + (v / 1e6).toLocaleString('es-CO', { maximumFractionDigits: 0 }) + ' M';
+}
+
+function tableroBarras(titulo, items, colorDe) {
+  const max = Math.max.apply(null, items.map(i => i.valor).concat([1]));
+  return `<div class="tab-card"><h4>${titulo}</h4>` + items.map(i => `
+    <div class="tab-row"><div class="tab-lab" title="${i.label}">${i.label}</div>
+      <div class="tab-track"><div class="tab-fill" style="width:${(i.valor / max * 100).toFixed(1)}%;background:${colorDe ? colorDe(i.label) : 'var(--udes-navy)'}"></div></div>
+      <div class="tab-val">${fmtMM(i.valor)} <span>(${i.n})</span></div></div>`).join('') + '</div>';
+}
+
+function agrupar(lista, clave) {
+  const m = {};
+  lista.forEach(p => {
+    const k = clave(p) || 'Sin información';
+    m[k] = m[k] || { label: k, valor: 0, n: 0 };
+    m[k].valor += Number(p['Costo estimado']) || 0;
+    m[k].n += 1;
+  });
+  return Object.keys(m).map(k => m[k]);
+}
+
+function renderTablero(contenedorId) {
+  const cont = document.getElementById(contenedorId);
+  if (!cont) return;
+  const L = proyectosActuales;
+  if (!L.length) { cont.innerHTML = '<p style="color:var(--texto-suave)">Sin proyectos para mostrar.</p>'; return; }
+
+  const inversion = L.reduce((a, p) => a + (Number(p['Costo estimado']) || 0), 0);
+  const aprobados = L.filter(p => p['Resultado evaluación'] === 'Aprobado').length;
+  const sinEvaluar = L.length - aprobados;
+  const criticos = L.filter(p => p.Prioridad === 'Crítico').length;
+  const conSeguimiento = L.filter(p => p['Avance físico'] || p['Avance financiero'] || p['Cumplimiento cronograma']).length;
+
+  const prior = ['Crítico', 'Alto', 'Medio', 'Largo Plazo'].map(k => {
+    const g = L.filter(p => p.Prioridad === k);
+    return { label: k, n: g.length, valor: g.reduce((a, p) => a + (Number(p['Costo estimado']) || 0), 0) };
+  });
+  const campus = agrupar(L, p => p.Campus).sort((a, b) => b.valor - a.valor);
+  const fuente = agrupar(L, p => p['Fuente de financiación'] || 'Sin fuente (no evaluado)').sort((a, b) => b.valor - a.valor);
+  const pilar = agrupar(L, p => p['Pilar PDI']).sort((a, b) => b.valor - a.valor);
+
+  const porAnio = ANIOS_TABLERO.map(y => {
+    let v = 0;
+    L.forEach(p => {
+      let pct = {};
+      try { pct = JSON.parse(p['Inversión por año (JSON)'] || '{}'); } catch (e) {}
+      v += (Number(p['Costo estimado']) || 0) * (Number(pct[y]) || 0);
+    });
+    return { label: String(y), valor: v, n: 0 };
+  });
+  const maxAnio = Math.max.apply(null, porAnio.map(a => a.valor).concat([1]));
+
+  const conFechas = L.filter(p => p['Fecha inicio'] && p['Fecha fin']).sort((a, b) => new Date(a['Fecha inicio']) - new Date(b['Fecha inicio']));
+  const pos = (f, fin) => {
+    const d = new Date(f);
+    const frac = (d.getFullYear() - 2027) + (d.getMonth() + (fin ? 1 : 0)) / 12;
+    return Math.max(0, Math.min(9, frac)) / 9 * 100;
+  };
+  const gantt = conFechas.map(p => {
+    const l = pos(p['Fecha inicio'], false), r = pos(p['Fecha fin'], true);
+    return `<div class="g-fila"><div class="g-lab" title="${p.Proyecto}">${p['N°']}. ${p.Proyecto}</div>
+      <div class="g-pista"><div class="g-barra" style="left:${l}%;width:${Math.max(r - l, 0.8)}%;background:${COLOR_PRIORIDAD[p.Prioridad] || '#6B7785'}" title="${formatoFecha(p['Fecha inicio'])} – ${formatoFecha(p['Fecha fin'])}"></div></div></div>`;
+  }).join('');
+
+  const ranking = L.slice().sort((a, b) => (Number(b['Costo estimado']) || 0) - (Number(a['Costo estimado']) || 0)).slice(0, 10)
+    .map(p => ({ label: p['N°'] + '. ' + p.Proyecto, valor: Number(p['Costo estimado']) || 0, n: p.Prioridad ? p.Prioridad : '' }));
+
+  cont.innerHTML = `
+    <div class="resumen-grid">
+      <div class="tarjeta"><div class="valor">${L.length}</div><div class="etiqueta">Proyectos</div></div>
+      <div class="tarjeta"><div class="valor">${fmtMM(inversion)}</div><div class="etiqueta">Inversión estimada</div></div>
+      <div class="tarjeta"><div class="valor">${criticos}</div><div class="etiqueta">Prioridad crítica</div></div>
+      <div class="tarjeta"><div class="valor">${aprobados}</div><div class="etiqueta">Aprobados en evaluación</div></div>
+      <div class="tarjeta"><div class="valor">${sinEvaluar}</div><div class="etiqueta">Sin evaluar (largo plazo)</div></div>
+      <div class="tarjeta"><div class="valor">${conSeguimiento}</div><div class="etiqueta">Con seguimiento diligenciado</div></div>
+    </div>
+    <div class="tab-grid">
+      ${tableroBarras('Inversión por prioridad (n.º de proyectos)', prior, k => COLOR_PRIORIDAD[k])}
+      ${tableroBarras('Inversión por campus', campus)}
+      ${tableroBarras('Inversión por fuente de financiación', fuente)}
+      ${tableroBarras('Inversión por pilar PDI', pilar)}
+    </div>
+    <div class="tab-card"><h4>Inversión estimada por año (según % de ejecución de cada proyecto)</h4>
+      <div class="tab-anios">${porAnio.map(a => `<div class="tab-anio"><div class="tab-anio-bar" style="height:${(a.valor / maxAnio * 100).toFixed(1)}%" title="${a.label}: ${fmtMM(a.valor)}"></div><div class="tab-anio-v">${fmtMM(a.valor)}</div><div>${a.label}</div></div>`).join('')}</div>
+    </div>
+    <div class="tab-card"><h4>Cronograma 2027–2035 <small>(color = prioridad; ${L.length - conFechas.length} proyectos sin fechas por ser de largo plazo)</small></h4>
+      <div class="g-cab"><div class="g-lab"></div><div class="g-anios">${ANIOS_TABLERO.map(y => `<div>${y}</div>`).join('')}</div></div>
+      <div class="g-scroll">${gantt || '<p style="color:var(--texto-suave)">Sin proyectos con fechas.</p>'}</div>
+    </div>
+    ${tableroBarras('Los 10 proyectos de mayor inversión', ranking)}
+  `;
 }
 
 /* -------- Arranque: retomar sesión si ya existía -------- */

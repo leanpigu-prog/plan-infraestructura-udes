@@ -33,7 +33,8 @@ function getSs_() {
 }
 
 const ESTADOS_VALIDOS = ['Sin iniciar', 'En desarrollo', 'Ejecutado', 'Atrasado'];
-const PRIORIDADES_VALIDAS = ['Alta', 'Media', 'Baja'];
+const PRIORIDADES_VALIDAS = ['Crítico', 'Alto', 'Medio', 'Largo Plazo'];
+const CRONOGRAMA_VALIDOS = ['Al día', 'Con retraso', 'Pendiente de inicio', 'Finalizado'];
 const HITO_ESTADOS_VALIDOS = ['Pendiente', 'Cumplido', 'Atrasado'];
 const EVIDENCIA_TIPOS_VALIDOS = ['Acta', 'Informe', 'Fotografía', 'Contrato/Convenio', 'Soporte de pago', 'Documento técnico', 'Otro'];
 
@@ -41,23 +42,13 @@ const EVIDENCIA_TIPOS_VALIDOS = ['Acta', 'Informe', 'Fotografía', 'Contrato/Con
 // proyecto — se usa para filtrar qué ve una cuenta individual (rol responsable_proyecto).
 const CAMPOS_RESPONSABLES = ['Responsable'];
 
-const PROGRAMAS_VALIDOS = [
-  'Movilidad y accesibilidad',
-  'Expansión académica',
-  'Equipamiento cultural y deportivo',
-  'Bienestar y vida universitaria',
-  'Identidad e imagen institucional',
-  'Ciencia, tecnología e innovación',
-  'Reserva de suelo',
-];
-
-const LINEAS_TI_VALIDAS = [
-  'Infraestructura de procesamiento y almacenamiento',
-  'Plataformas institucionales',
-  'Servicios tecnológicos',
-  'Seguridad de la infraestructura tecnológica',
-  'Analítica, datos e IA',
-  'Infraestructura tecnológica para docencia e investigación',
+const PILARES_VALIDOS = [
+  'P1. Experiencia en el aula',
+  'P2. Ambiente tecnológico',
+  'P3. Entorno emprendedor',
+  'P4. Gobernanza para el buen gobierno',
+  'P5. Impacto de la investigación',
+  'P6. Apropiación social',
 ];
 
 const CAMPUS_VALIDOS = ['Bucaramanga', 'Cúcuta', 'Valledupar'];
@@ -70,14 +61,14 @@ const CAMPUS_VALIDOS = ['Bucaramanga', 'Cúcuta', 'Valledupar'];
 const MODULOS = {
   fisica: {
     sheet: SHEET_PROYECTOS,
-    categoriaCol: 'Programa',
-    categoriasValidas: PROGRAMAS_VALIDOS,
+    categoriaCol: 'Pilar PDI',
+    categoriasValidas: PILARES_VALIDOS,
     moduloLabel: 'Física',
   },
   tecnologica: {
     sheet: SHEET_PROYECTOS_TI,
-    categoriaCol: 'Línea',
-    categoriasValidas: LINEAS_TI_VALIDAS,
+    categoriaCol: 'Pilar PDI',
+    categoriasValidas: PILARES_VALIDOS,
     moduloLabel: 'Tecnológica',
   },
 };
@@ -91,29 +82,6 @@ const ROLE_MODULOS = {
   responsable_proyecto: ['fisica', 'tecnologica'],
 };
 
-const PROYECTOS_BASE = [
-  // N°, Proyecto, Campus, Descripción, Programa, Estado inicial, % avance inicial
-  [1, 'Edificio Chitareros', 'Bucaramanga', 'Infraestructura académica con aulas activas y laboratorios flexibles, preparada para ampliaciones futuras.', 'Expansión académica', 'Sin iniciar', 0],
-  [2, 'Vía al Polvorín', 'Bucaramanga', 'Conexión vial estratégica entre parqueaderos, zonas deportivas y equipamientos institucionales.', 'Movilidad y accesibilidad', 'Sin iniciar', 0],
-  [3, 'Deprimido', 'Bucaramanga', 'Paso inferior para mejorar la seguridad y fluidez vehicular y peatonal.', 'Movilidad y accesibilidad', 'Sin iniciar', 0],
-  [4, 'Puente', 'Bucaramanga', 'Conexión directa entre el campus académico y las zonas deportivas y culturales.', 'Movilidad y accesibilidad', 'Sin iniciar', 0],
-  [5, 'Acceso principal', 'Bucaramanga', 'Reingeniería del ingreso institucional con mayor seguridad y eficiencia operativa.', 'Movilidad y accesibilidad', 'Sin iniciar', 0],
-  [6, 'Auditorio', 'Bucaramanga', 'Escenario multipropósito para eventos académicos y culturales de gran formato.', 'Equipamiento cultural y deportivo', 'Sin iniciar', 0],
-  [7, 'Coliseo', 'Bucaramanga', 'Equipamiento deportivo y cultural de aforo masivo y uso multifuncional.', 'Equipamiento cultural y deportivo', 'Sin iniciar', 0],
-  [8, 'Canchas', 'Bucaramanga', 'Espacios especializados para prácticas deportivas con especificaciones técnicas para uso continuo.', 'Equipamiento cultural y deportivo', 'Sin iniciar', 0],
-  [9, 'Residencias estudiantiles', 'Bucaramanga', 'Alojamiento con ambientes de estudio, conectividad y servicios complementarios.', 'Bienestar y vida universitaria', 'Sin iniciar', 0],
-  [10, 'CDT INNOVATEC', 'Bucaramanga', 'Centro de Desarrollo Tecnológico consolidado en 2025 (Acuerdo 009), orientado a seguridad alimentaria y energías renovables.', 'Ciencia, tecnología e innovación', 'Sin iniciar', 0],
-  [11, 'Cafetería', 'Cúcuta', 'Ampliación del espacio de encuentro universitario en la plaza central para mejorar bienestar y permanencia.', 'Bienestar y vida universitaria', 'En desarrollo', 40],
-  [12, 'Ascensor edificio administrativo', 'Cúcuta', 'Mejora de accesibilidad y conectividad vertical en el bloque administrativo.', 'Movilidad y accesibilidad', 'En desarrollo', 40],
-  [13, 'Compra Edificio Cruz Roja', 'Cúcuta', 'Ampliación de aulas, laboratorios y espacios de extensión mediante adquisición contigua estratégica.', 'Expansión académica', 'Ejecutado', 100],
-  [14, 'Fachada Institucional', 'Cúcuta', 'Renovación del borde institucional para reforzar identidad, iluminación y accesos.', 'Identidad e imagen institucional', 'Sin iniciar', 0],
-  [15, 'Modernización de parqueaderos', 'Cúcuta', 'Optimización de flujos, señalización e infraestructura vial interna.', 'Movilidad y accesibilidad', 'Sin iniciar', 0],
-  [16, 'Pompeyanos (paso peatonal)', 'Cúcuta', 'Conexión peatonal segura entre el campus y su entorno inmediato.', 'Movilidad y accesibilidad', 'Sin iniciar', 0],
-  [17, 'Edificio Calle 14 (3 pisos)', 'Valledupar', 'Construcción de nuevo bloque académico-administrativo.', 'Expansión académica', 'Sin iniciar', 0],
-  [18, 'Adquisición lote Cra 5', 'Valledupar', 'Compra de predio para expansión futura del campus.', 'Reserva de suelo', 'Sin iniciar', 0],
-  [19, 'Fachada Institucional', 'Valledupar', 'Adecuación arquitectónica y mejoramiento de accesos.', 'Identidad e imagen institucional', 'Sin iniciar', 0],
-];
-
 // Cuentas de nivel institucional (setup() las agrega si faltan, sin duplicar).
 // Las cuentas individuales de responsable_proyecto se agregan manualmente en el Sheet.
 const USUARIOS_BASE = [
@@ -122,19 +90,16 @@ const USUARIOS_BASE = [
   ['tecnologia', 'CAMBIAR-CLAVE-TI', 'Todos', 'tecnologia', ''],
 ];
 
+// Misma estructura para ambos módulos (base aprobada PDIFyT, Priorización y Evaluación 7, 2026-11-18).
 const PROYECTOS_HEADERS = [
-  'N°', 'Proyecto', 'Campus', 'Descripción', 'Programa',
-  'Costo estimado', 'Fuente de financiación',
-  'Fecha inicio', 'Fecha fin', 'Fase actual',
-  'Responsable', 'Estado', 'Prioridad', '% avance', 'Última actualización',
+  'N°', 'Proyecto', 'Campus', 'Descripción', 'Pilar PDI', 'Clasificación', 'Origen',
+  'Costo estimado', 'Fuente de financiación', 'Fecha inicio', 'Fecha fin', 'Fase actual',
+  'Responsable', 'Estado', 'Prioridad', '% avance',
+  'Resultado evaluación', 'Pertinencia', 'Viabilidad',
+  'Avance físico', 'Avance financiero', 'Cumplimiento cronograma', 'Riesgos', 'Acciones',
+  'Criterios (JSON)', 'Inversión por año (JSON)', 'Última actualización',
 ];
-
-const PROYECTOS_TI_HEADERS = [
-  'N°', 'Proyecto', 'Línea', 'Campus', 'Descripción',
-  'Costo estimado', 'Fuente de financiación',
-  'Fecha inicio', 'Fecha fin', 'Fase actual', 'Responsable',
-  'Estado', 'Prioridad', '% avance', 'Última actualización',
-];
+const PROYECTOS_TI_HEADERS = PROYECTOS_HEADERS;
 
 const USUARIOS_HEADERS = ['Usuario', 'Clave', 'Campus', 'Rol', 'Nombre asociado'];
 
@@ -156,34 +121,7 @@ const EVIDENCIAS_HEADERS = ['ID', 'Módulo', 'N° proyecto', 'Proyecto', 'Tipo',
 function setup() {
   const ss = getSs_();
 
-  const proyectosSheet = getOrCreateSheet_(ss, SHEET_PROYECTOS);
-  if (proyectosSheet.getLastRow() === 0) {
-    proyectosSheet.appendRow(PROYECTOS_HEADERS);
-    PROYECTOS_BASE.forEach(function (p) {
-      const now = new Date();
-      proyectosSheet.appendRow([
-        p[0], p[1], p[2], p[3], p[4],
-        '', '',
-        '', '', '',
-        '', p[5], '', p[6], now
-      ]);
-    });
-    aplicarValidaciones_(proyectosSheet);
-    proyectosSheet.setFrozenRows(1);
-    proyectosSheet.autoResizeColumns(1, PROYECTOS_HEADERS.length);
-  } else {
-    asegurarColumnas_(proyectosSheet, PROYECTOS_HEADERS);
-  }
-
-  const proyectosTiSheet = getOrCreateSheet_(ss, SHEET_PROYECTOS_TI);
-  if (proyectosTiSheet.getLastRow() === 0) {
-    proyectosTiSheet.appendRow(PROYECTOS_TI_HEADERS);
-    aplicarValidaciones_(proyectosTiSheet);
-    proyectosTiSheet.setFrozenRows(1);
-    proyectosTiSheet.autoResizeColumns(1, PROYECTOS_TI_HEADERS.length);
-  } else {
-    asegurarColumnas_(proyectosTiSheet, PROYECTOS_TI_HEADERS);
-  }
+  migrarBasePDIFyT_(ss);
 
   const usuariosSheet = getOrCreateSheet_(ss, SHEET_USUARIOS);
   if (usuariosSheet.getLastRow() === 0) {
@@ -225,6 +163,127 @@ function setup() {
 
   SpreadsheetApp.flush();
   Logger.log('Setup/migración completo. Recuerda cambiar las claves en la hoja "Usuarios" (incluidas infraestructura y tecnologia).');
+}
+
+/**
+ * Migra a la base aprobada del PDIFyT (75 proyectos: 62 PLF -> Física, 13 IFT/IFT-LOG -> Tecnológica).
+ * NO borra nada: si las hojas Proyectos/ProyectosTI/Hitos/Evidencias/Historial_Seguimiento aún tienen la
+ * estructura anterior (sin columna "Pilar PDI"), las renombra a "<nombre>_archivo_AAAAMMDD" y crea las nuevas.
+ * Conserva Estado, % avance, Responsable y Fase actual de los proyectos antiguos que coinciden por
+ * descripción y campus, y re-asocia sus hitos y evidencias al nuevo N°. Idempotente: si ya migró, no hace nada.
+ */
+function migrarBasePDIFyT_(ss) {
+  const hoja = ss.getSheetByName(SHEET_PROYECTOS);
+  const yaMigrado = hoja && hoja.getLastRow() > 0 &&
+    hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0].indexOf('Pilar PDI') !== -1;
+  if (yaMigrado) {
+    asegurarColumnas_(hoja, PROYECTOS_HEADERS);
+    const hojaTi = getOrCreateSheet_(ss, SHEET_PROYECTOS_TI);
+    if (hojaTi.getLastRow() === 0) crearHojaProyectosNueva_(hojaTi, 'tecnologica', {});
+    else asegurarColumnas_(hojaTi, PROYECTOS_HEADERS);
+    return;
+  }
+
+  const sello = Utilities.formatDate(new Date(), 'America/Bogota', 'yyyyMMdd');
+  const norm = function (t) { return String(t || '').toLowerCase().replace(/\s+/g, ' ').trim(); };
+  const leer = function (sheet) {
+    if (!sheet || sheet.getLastRow() < 2) return [];
+    const data = sheet.getDataRange().getValues();
+    const h = data[0];
+    return data.slice(1).map(function (r) {
+      const o = {};
+      h.forEach(function (c, i) { o[c] = r[i]; });
+      return o;
+    });
+  };
+  const archivar = function (nombre) {
+    const sh = ss.getSheetByName(nombre);
+    if (!sh) return;
+    if (sh.getLastRow() > 0) sh.setName(nombre + '_archivo_' + sello);
+    else ss.deleteSheet(sh);
+  };
+
+  const viejos = leer(ss.getSheetByName(SHEET_PROYECTOS));
+  const hitosViejos = leer(ss.getSheetByName(SHEET_HITOS));
+  const evidViejas = leer(ss.getSheetByName(SHEET_EVIDENCIAS));
+
+  const carry = {};
+  const mapaNo = {};
+  viejos.forEach(function (v) {
+    const dv = norm(v['Descripción']);
+    if (!dv) return;
+    const sinPunto = function (t) { return t.replace(/\.$/, ''); };
+    const dvp = sinPunto(dv);
+    const nuevo = PROYECTOS_PDIFYT.filter(function (p) {
+      if (p.campus !== v['Campus'] || carry[p.n]) return false;
+      const np = sinPunto(norm(p.proyecto));
+      return norm(p.desc).indexOf(dv) !== -1 || np === dvp || (np.length > 25 && dvp.indexOf(np) === 0);
+    })[0];
+    if (nuevo) {
+      carry[nuevo.n] = v;
+      mapaNo[v['N°']] = nuevo;
+    }
+  });
+
+  [SHEET_PROYECTOS, SHEET_PROYECTOS_TI, SHEET_HITOS, SHEET_EVIDENCIAS, SHEET_HISTORIAL].forEach(archivar);
+
+  crearHojaProyectosNueva_(getOrCreateSheet_(ss, SHEET_PROYECTOS), 'fisica', carry);
+  crearHojaProyectosNueva_(getOrCreateSheet_(ss, SHEET_PROYECTOS_TI), 'tecnologica', carry);
+
+  const copiarSeguimiento = function (nombreHoja, headers, filas, colValidada, valores) {
+    const sh = getOrCreateSheet_(ss, nombreHoja);
+    sh.appendRow(headers);
+    aplicarValidacionLista_(sh, colValidada, valores);
+    sh.setFrozenRows(1);
+    filas.forEach(function (f) {
+      const nuevo = (f['Módulo'] === 'Física' || !f['Módulo']) ? mapaNo[f['N° proyecto']] : null;
+      if (!nuevo) return;
+      sh.appendRow(headers.map(function (c) {
+        if (c === 'N° proyecto') return nuevo.n;
+        if (c === 'Proyecto') return nuevo.proyecto;
+        return f[c] === undefined ? '' : f[c];
+      }));
+    });
+  };
+  copiarSeguimiento(SHEET_HITOS, HITOS_HEADERS, hitosViejos, 'Estado', HITO_ESTADOS_VALIDOS);
+  copiarSeguimiento(SHEET_EVIDENCIAS, EVIDENCIAS_HEADERS, evidViejas, 'Tipo', EVIDENCIA_TIPOS_VALIDOS);
+
+  const histSheet = getOrCreateSheet_(ss, SHEET_HISTORIAL);
+  histSheet.appendRow(HISTORIAL_HEADERS);
+  histSheet.setFrozenRows(1);
+  histSheet.appendRow([
+    new Date(), '', 'Migración', 'sistema', '', '', '',
+    'Migración a la base aprobada PDIFyT (75 proyectos). Hojas anteriores archivadas con sufijo _archivo_' + sello +
+      '. Proyectos con seguimiento conservado: ' + Object.keys(carry).length + '.',
+    'Física'
+  ]);
+  Logger.log('Migración PDIFyT completa. Proyectos antiguos con seguimiento conservado: ' + Object.keys(carry).length);
+}
+
+/** Escribe encabezados + los proyectos del módulo (de PROYECTOS_PDIFYT) en una hoja vacía. */
+function crearHojaProyectosNueva_(sheet, modulo, carry) {
+  sheet.clear();
+  sheet.appendRow(PROYECTOS_HEADERS);
+  const now = new Date();
+  const filas = PROYECTOS_PDIFYT.filter(function (p) { return p.modulo === modulo; }).map(function (p) {
+    const v = carry[p.n] || {};
+    const o = {
+      'N°': p.n, 'Proyecto': p.proyecto, 'Campus': p.campus, 'Descripción': p.desc,
+      'Pilar PDI': p.pilar, 'Clasificación': p.clasif, 'Origen': p.origen,
+      'Costo estimado': p.monto, 'Fuente de financiación': p.fuente,
+      'Fecha inicio': p.inicio, 'Fecha fin': p.fin, 'Fase actual': v['Fase actual'] || '',
+      'Responsable': v['Responsable'] || '', 'Estado': v['Estado'] || 'Sin iniciar',
+      'Prioridad': p.prior, '% avance': (v['% avance'] === undefined || v['% avance'] === '') ? 0 : v['% avance'],
+      'Resultado evaluación': p.res, 'Pertinencia': p.pert, 'Viabilidad': p.viab,
+      'Avance físico': '', 'Avance financiero': '', 'Cumplimiento cronograma': '', 'Riesgos': '', 'Acciones': '',
+      'Criterios (JSON)': p.crit, 'Inversión por año (JSON)': p.pct, 'Última actualización': now,
+    };
+    return PROYECTOS_HEADERS.map(function (h) { return o[h]; });
+  });
+  if (filas.length) sheet.getRange(2, 1, filas.length, PROYECTOS_HEADERS.length).setValues(filas);
+  aplicarValidaciones_(sheet);
+  aplicarValidacionLista_(sheet, 'Cumplimiento cronograma', CRONOGRAMA_VALIDOS);
+  sheet.setFrozenRows(1);
 }
 
 function getOrCreateSheet_(ss, name) {
@@ -485,6 +544,9 @@ function actualizarProyecto_(body) {
   if (body.estado && ESTADOS_VALIDOS.indexOf(body.estado) === -1) {
     return { ok: false, error: 'Estado inválido: ' + body.estado };
   }
+  if (body.cumplimientoCronograma && CRONOGRAMA_VALIDOS.indexOf(body.cumplimientoCronograma) === -1) {
+    return { ok: false, error: 'Cumplimiento de cronograma inválido: ' + body.cumplimientoCronograma };
+  }
 
   const estadoAnterior = filaActual[colIndex['Estado']];
   const rowNumber = filaEncontrada + 1; // 1-indexado en el Sheet, +1 por encabezado ya incluido en data
@@ -499,6 +561,11 @@ function actualizarProyecto_(body) {
     'Estado': 'estado',
     'Prioridad': 'prioridad',
     '% avance': 'pctAvance',
+    'Avance físico': 'avanceFisico',
+    'Avance financiero': 'avanceFinanciero',
+    'Cumplimiento cronograma': 'cumplimientoCronograma',
+    'Riesgos': 'riesgos',
+    'Acciones': 'acciones',
   };
 
   Object.keys(camposEditables).forEach(function (columna) {
@@ -575,6 +642,9 @@ function crearProyecto_(body) {
   if (colIndex['Campus'] !== undefined) fila[colIndex['Campus']] = campus;
   fila[colIndex['Descripción']] = String(body.descripcion || '');
   fila[colIndex['Estado']] = 'Sin iniciar';
+  if (colIndex['Clasificación'] !== undefined) fila[colIndex['Clasificación']] = modulo === 'fisica' ? 'PLF' : 'IFT';
+  if (colIndex['Origen'] !== undefined) fila[colIndex['Origen']] = 'Nuevo';
+  if (colIndex['Resultado evaluación'] !== undefined) fila[colIndex['Resultado evaluación']] = 'Sin resultado (no evaluado)';
   fila[colIndex['Prioridad']] = body.prioridad || '';
   fila[colIndex['% avance']] = 0;
   fila[colIndex['Última actualización']] = now;
